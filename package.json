@@ -1,7 +1,7 @@
 {
-  "name": "etherlime-project",
+  "name": "allianceblock-contracts",
   "version": "1.0.0",
-  "description": "This is the default package.json generated for your project",
+  "description": "ERC20 contract owned by multisig wallet. Smart contract handling batch transfers. Generic Vesting smart contract.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
