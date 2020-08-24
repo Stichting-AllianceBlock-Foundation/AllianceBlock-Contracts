@@ -38,13 +38,12 @@ describe('ERC20', function () {
     const tokens = 100;
     const sendtokens = 1;
     await allianceBlockToken.mint(recipient, tokens);
-    await allianceBlockToken.from(recipient).approve(initialHolder, tokens);
-    await allianceBlockToken.transferFrom(recipient, initialHolder, sendtokens);
+    await allianceBlockToken.from(recipient).transfer(initialHolder, sendtokens);
     const balance = await allianceBlockToken.balanceOf(initialHolder);
     assert(balance.eq(sendtokens), 'Not enough tokens');
   });
 
-  it("contract pause method", async () => {
+  it("can not transfer and burn while paused", async () => {
     const tokens = 100;
     await allianceBlockToken.pause();
     await assert.revert(allianceBlockToken.transferFrom(recipient, initialHolder, tokens));
