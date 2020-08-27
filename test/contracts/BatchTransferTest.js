@@ -18,7 +18,7 @@ describe('BatchTransfer', function () {
     batchTransfer = await deployer.deploy(BatchTransfer, {}, allianceBlockToken.contract.address);
   });
 
-  it("is possible to send tokens to multiple accounts", async () => {
+  it("should send tokens to multiple accounts", async () => {
     const tokens = 20;
     const tokensToSend = [];
     const accountsToSend = accounts.map(el => {
@@ -31,7 +31,7 @@ describe('BatchTransfer', function () {
     await assert(balance.eq(tokensToSend[0]), 'Not enough tokens');
   });
 
-  it("send tokens to the maximum number of users", async () => {
+  it("should send tokens to the maximum number of users", async () => {
     const tokens = 300;
     const mockedTokens = [];
     const tokensToSend = [];
@@ -40,17 +40,17 @@ describe('BatchTransfer', function () {
       mockedTokens.push(1);
       return el.signer.address;
     });
-    for (let i = 0; i < 25; i++) {
+    for (let i = 0; i < 23; i++) {
       tokensToSend.push(...mockedTokens.slice());
       accountsToSend.push(...accountsMapped.slice());
     };
     await allianceBlockToken.mint(batchTransfer.contract.address, tokens);
-    const transaction = await batchTransfer.sendTokens(accountsToSend, tokensToSend);
+    await batchTransfer.sendTokens(accountsToSend, tokensToSend);
     const balance = await allianceBlockToken.balanceOf(initialHolder);
-    await assert(balance.eq(tokensToSend[0] * 25), 'Not enough tokens');
+    await assert(balance.eq(tokensToSend[0] * 23), 'Not enough tokens');
   });
 
-  it("when the recipient is the zero address", async () => {
+  it("should fail when the recipient is the zero address", async () => {
     const recipient = "0x0000000000000000000000000000000000000000";
     const tokens = 20;
     const tokensToSend = [10];
@@ -60,7 +60,7 @@ describe('BatchTransfer', function () {
     );
   })
 
-  it("when contract's balance is below tokens sent", async () => {
+  it("should fail when contract's balance is below tokens sent", async () => {
     const tokens = 5;
     const tokensToSend = [10];
     await allianceBlockToken.mint(batchTransfer.contract.address, tokens);
