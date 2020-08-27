@@ -11,11 +11,13 @@ describe('BatchTransfer', function () {
   let deployer;
   let batchTransfer;
   let allianceBlockToken; 
+  let tokenAddress;
 
   beforeEach(async function () {
     deployer = new etherlime.EtherlimeGanacheDeployer(initialHolderSecretKey);
     allianceBlockToken = await deployer.deploy(AllianceBlockToken, {});
-    batchTransfer = await deployer.deploy(BatchTransfer, {}, allianceBlockToken.contract.address);
+    batchTransfer = await deployer.deploy(BatchTransfer, {});
+    tokenAddress = allianceBlockToken.contract.address;
   });
 
   it("should send tokens to multiple accounts", async () => {
@@ -26,7 +28,7 @@ describe('BatchTransfer', function () {
       return el.signer.address;
     });
     await allianceBlockToken.mint(batchTransfer.contract.address, tokens);
-    await batchTransfer.sendTokens(accountsToSend, tokensToSend);
+    await batchTransfer.sendTokens(tokenAddress, accountsToSend, tokensToSend);
     const balance = await allianceBlockToken.balanceOf(initialHolder);
     await assert(balance.eq(tokensToSend[0]), 'Not enough tokens');
   });
@@ -45,7 +47,7 @@ describe('BatchTransfer', function () {
       accountsToSend.push(...accountsMapped.slice());
     };
     await allianceBlockToken.mint(batchTransfer.contract.address, tokens);
-    await batchTransfer.sendTokens(accountsToSend, tokensToSend);
+    await batchTransfer.sendTokens(tokenAddress, accountsToSend, tokensToSend);
     const balance = await allianceBlockToken.balanceOf(initialHolder);
     await assert(balance.eq(tokensToSend[0] * 23), 'Not enough tokens');
   });
@@ -56,7 +58,7 @@ describe('BatchTransfer', function () {
     const tokensToSend = [10];
     await allianceBlockToken.mint(batchTransfer.contract.address, tokens);
     await assert.revertWith(
-      batchTransfer.sendTokens([recipient], tokensToSend), 'ERC20: transfer to the zero address'
+      batchTransfer.sendTokens(tokenAddress, [recipient], tokensToSend), 'ERC20: transfer to the zero address'
     );
   })
 
@@ -65,7 +67,7 @@ describe('BatchTransfer', function () {
     const tokensToSend = [10];
     await allianceBlockToken.mint(batchTransfer.contract.address, tokens);
     await assert.revertWith(
-      batchTransfer.sendTokens([initialHolder], tokensToSend), 'Not enough balance'
+      batchTransfer.sendTokens(tokenAddress, [initialHolder], tokensToSend), 'Not enough balance'
     );
   })
 });
