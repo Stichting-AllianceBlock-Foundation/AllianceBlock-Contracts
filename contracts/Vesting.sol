@@ -8,7 +8,6 @@ import "./PercentageCalculator.sol";
 contract Vesting is Ownable {
     uint256 public startDate;
     uint256 periodLength = 30 days;
-    uint256 totalPeriods = 24;
     uint256[24] public cumulativeAmountsToVest;
     IERC20 token;
 
