@@ -48,10 +48,6 @@ contract Vesting is Ownable {
             _tokenAddress != address(0),
             "Token Address can't be zero address"
         );
-        require(
-            _cumulativeAmountsToVest.length > 0,
-            "Vesting schedule amounts are missing"
-        );
         token = IERC20(_tokenAddress);
         cumulativeAmountsToVest = _cumulativeAmountsToVest;
     }
