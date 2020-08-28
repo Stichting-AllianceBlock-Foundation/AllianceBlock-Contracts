@@ -9,6 +9,7 @@ contract Vesting is Ownable {
     uint256 public startDate;
     uint256 periodLength = 30 days;
     uint256[24] public cumulativeAmountsToVest;
+    uint256 public totalPercentages;
     IERC20 token;
 
     struct Recipient {
@@ -16,14 +17,17 @@ contract Vesting is Ownable {
         uint256 withdrawPercentage;
     }
 
-    uint256 public totalRecipients = 0;
+    uint256 public totalRecipients;
     mapping(address => Recipient) public recipients;
 
     event LogStartDateSet(address setter, uint256 startDate);
     event LogRecipientAdded(address recipient, uint256 withdrawPercentage);
     event LogTokensClaimed(address recipient, uint256 amount);
 
-    //Note: Percentages will be multiplied by 1000 to be stored with 3 digit after the decimal point
+    /*
+     * Note: Percentages will be provided in thousands to represent 3 digits after the decimal point.
+     * Ex. 10% = 10000
+     */
     modifier onlyValidPercentages(uint256 _percentage) {
         require(
             _percentage < 100000,
@@ -57,7 +61,6 @@ contract Vesting is Ownable {
      * @param _startDate The start date of the veseting presented as a timestamp
      */
     function setStartDate(uint256 _startDate) public onlyOwner {
-        require(_startDate > 0, "Start Date can't be zero");
         require(_startDate >= now, "Start Date can't be in the past");
 
         startDate = _startDate;
@@ -67,7 +70,7 @@ contract Vesting is Ownable {
     /**
      * @dev Function add recipient to the vesting contract
      * @param _recipientAddress The address of the recipient
-     * @param _withdrawPercentage The percentage that the recipient should receive in each vestin period
+     * @param _withdrawPercentage The percentage that the recipient should receive in each vesting period
      */
     function addRecipient(
         address _recipientAddress,
@@ -77,7 +80,10 @@ contract Vesting is Ownable {
             _recipientAddress != address(0),
             "Recepient Address can't be zero address"
         );
+        totalPercentages = totalPercentages + _withdrawPercentage;
+        require(totalPercentages <= 100000, "Total percentages exceeds 100%");
         totalRecipients++;
+
         recipients[_recipientAddress] = Recipient(0, _withdrawPercentage);
         emit LogRecipientAdded(_recipientAddress, _withdrawPercentage);
     }
@@ -91,10 +97,13 @@ contract Vesting is Ownable {
         address[] memory _recipients,
         uint256[] memory _withdrawPercentages
     ) public onlyOwner {
-        //TODO: Check if the right number here is 50 or more
         require(
-            _recipients.length < 50,
-            "The recipients must be not more than 50"
+            _recipients.length < 250,
+            "The recipients must be not more than 250"
+        );
+        require(
+            _recipients.length == _withdrawPercentages.length,
+            "The two arryas are with different length"
         );
         for (uint256 i; i < _recipients.length; i++) {
             addRecipient(_recipients[i], _withdrawPercentages[i]);
