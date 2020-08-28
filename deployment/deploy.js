@@ -1,12 +1,14 @@
 const etherlime = require('etherlime-lib');
 const AllianceBlockToken = require('../build/AllianceBlockToken.json');
 const BatchTransfer = require('../build/BatchTransfer.json');
+const Vesting = require('../build/Vesting.json');
+const PercentageCalculator = require('../build/PercentageCalculator.json');
 
 const deploy = async (network, secret, etherscanApiKey) => {
 	const deployer = new etherlime.InfuraPrivateKeyDeployer(secret,
-		   network, '7797fd5aada5475c831fedefe288a949', {
-			etherscanApiKey 
-		   });
+		network, '7797fd5aada5475c831fedefe288a949', {
+			etherscanApiKey
+		});
 	const allianceBlockToken = await deployer.deploy(AllianceBlockToken, false);
 	const address = '0xD033fAC764fDB548542fe4c6897562a9114BdBb7';
 	const minterRole = await allianceBlockToken.MINTER_ROLE();
@@ -25,6 +27,15 @@ const deploy = async (network, secret, etherscanApiKey) => {
 	const revokePauserRoleTransaction = await allianceBlockToken.revokeRole(pauserRole, deployerAddress)
 	await allianceBlockToken.verboseWaitForTransaction(revokePauserRoleTransaction, 'Revoking pauser role');
 	await deployer.deploy(BatchTransfer);
+
+	const percentageCalculator = await deployer.deploy(PercentageCalculator);
+	const libraries = {
+		PercentageCalculator: percentageCalculator.contractAddress
+	}
+	//This will be replaced with real data, once provided
+	const cumulativeAmountsToVest = ["43333333000000000000000000", "76666666000000000000000000", "93333333000000000000000000", "93333333000000000000000000", "93333333000000000000000000", "15000000000000000000000000", "15000000000000000000000000", "15000000000000000000000000", "15000000000000000000000000", "15000000000000000000000000", "15000000000000000000000000", "30000000000000000000000000", "30000000000000000000000000", "30000000000000000000000000", "40000000000000000000000000", "40000000000000000000000000", "40000000000000000000000000", "50000000000000000000000000", "50000000000000000000000000", "50000000000000000000000000", "60000000000000000000000000", "60000000000000000000000000", "60000000000000000000000000", "75000000000000000000000000"]
+
+	await deployer.deploy(Vesting, libraries, allianceBlockToken.contractAddress, cumulativeAmountsToVest)
 };
 
 module.exports = {
