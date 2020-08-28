@@ -33,6 +33,7 @@ const deploy = async (network, secret, etherscanApiKey) => {
 		PercentageCalculator: percentageCalculator.contractAddress
 	}
 	const cumulativeAmountsToVest = []
+	//This will be replaced with real data, once is provided
 	let periodAmount = 1000
 	for (let i = 0; i < 24; i++) {
 		periodAmount += 1000
