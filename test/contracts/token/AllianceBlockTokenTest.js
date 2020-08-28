@@ -1,5 +1,5 @@
 const etherlime = require('etherlime-lib');
-const AllianceBlockToken = require('../../build/AllianceBlockToken.json');
+const AllianceBlockToken = require('../../../build/AllianceBlockToken.json');
 
 describe('ERC20', function () {
   const initialHolderSecretKey = accounts[0].secretKey;
