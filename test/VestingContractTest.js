@@ -16,7 +16,7 @@ describe('Vesting Contract', function () {
 	let libraries
 	let tokens = 100000
 
-	let cumulativeAmounts = ["10000000000000000000", "200", "300", "400", "500", "600", "700", "800", "900", "1000", "1100", "1200", "1300", "1400", "1500", "1600", "1700", "1800", "1900", "2000", "2100", "2200", "2300", "2400"]
+	let cumulativeAmounts = [10000, 20000, 30000, 40000, 50000, 60000,70000,80000,90000,100000,110000,120000,130000,140000,150000,160000,170000,180000,190000,200000,210000,220000,230000,240000]
 	beforeEach(async function () {
 		deployer = new etherlime.EtherlimeGanacheDeployer(owner.secretKey);
 		allianceBlockToken = await deployer.deploy(AllianceBlockToken, {});
@@ -33,25 +33,15 @@ describe('Vesting Contract', function () {
 		assert.strictEqual(contractOwner, owner.signer.address, "The owner address is wrong");
 	});
 
-	// it("should set the proper token contract address", async() => {
-	// 	let tokenAddress = await vestingContract.tokenAddress();
-	// 	assert.strictEqual(tokenAddress, allianceBlockToken.contractAddress, "The owner address is wrong");
-	// })
 
 	it("should not deploy the contract with zero token address", async () => {
 		await assert.revert(deployer.deploy(VestingContract, libraries, zeroAddress, cumulativeAmounts))
 	})
 
-	xit("should fail if the cumulative amounts array is empty", async () => {
-		assert.fail(await deployer.deploy(VestingContract, libraries, allianceBlockToken.contractAddress, [""]))
-	})
-	xit("should fail if the cumulative amounts array length is bigger than 24", async () => {
-		assert.fail(await deployer.deploy(VestingContract, libraries, allianceBlockToken.contractAddress, cumulativeAmounts3))
-	})
-
 	it("should set the start date properly and emit event", async () => {
 		let startDateEvent = "LogStartDateSet"
-		let startDate = (Math.floor(Date.now() / 1000) + 1000)
+		let provider = new ethers.providers.JsonRpcProvider();
+		let startDate = ((await provider.getBlock()).timestamp) + 100
 		let transaction = await vestingContract.setStartDate(startDate);
 		const transactionReceipt = await vestingContract.verboseWaitForTransaction(transaction);
 
@@ -90,7 +80,7 @@ describe('Vesting Contract', function () {
 		let recipient = await vestingContract.recipients(recipientAddress);
 
 		assert.equal(totalRecipients, 1, "Total recipients number is not correct");
-		await assert.equal(recipient.withdrawPercetange.toNumber(), recipientPercentage, "Recipient data is not correct")
+		await assert.equal(recipient.withdrawPercentage.toNumber(), recipientPercentage, "Recipient data is not correct")
 	})
 
 	it("should fail adding recipient from not owner", async () => {
@@ -126,7 +116,7 @@ describe('Vesting Contract', function () {
 		let recipient = await vestingContract.recipients(recipientAddresses[1]);
 
 		assert.equal(recipientAddresses.length, totalRecipients, "Total recipients number is not correct");
-		assert.equal(recipient.withdrawPercetange.toNumber(), recipientsPercentages[1], "Recipient data is not correct")
+		assert.equal(recipient.withdrawPercentage.toNumber(), recipientsPercentages[1], "Recipient data is not correct")
 	})
 
 	it("should fail if trying to add multiple recipients from non owner address", async () => {
@@ -150,14 +140,14 @@ describe('Vesting Contract', function () {
 	})
 
 	it("should sucessfully call the claim function", async () => {
-		let startDate = (Math.floor(Date.now() / 1000) + 100)
+		let provider = new ethers.providers.JsonRpcProvider();
+		let startDate = ((await provider.getBlock()).timestamp) + 100
+		await vestingContract.setStartDate(startDate);
 		let recipientAddress = accounts[2].signer.address
 		let recipientPercentage = 1000
 
-		await vestingContract.setStartDate(startDate);
 		await vestingContract.addRecipient(recipientAddress, recipientPercentage);
 
-		let userInitialBalance = await allianceBlockToken.balanceOf(recipientAddress)
 		let contractInitialBalance = await allianceBlockToken.balanceOf(vestingContract.contractAddress);
 
 		let seconds = 600000;
@@ -167,26 +157,102 @@ describe('Vesting Contract', function () {
 
 		let userFinalBalance = await allianceBlockToken.balanceOf(recipientAddress)
 		let contractFinalBalance = await allianceBlockToken.balanceOf(vestingContract.contractAddress);
-		console.log(userInitialBalance.toNumber())
-		console.log(contractInitialBalance.toNumber())
-		console.log(userFinalBalance.toNumber())
-		console.log(contractFinalBalance.toNumber())
+		let owedBalance = cumulativeAmounts[0] * recipientPercentage / 100000
+		let recipient = await vestingContract.recipients(recipientAddress);
+		let hasToClaim = await vestingContract.from(recipientAddress).hasClaim()
+
+		assert.equal(recipient.withdrawnAmount.toNumber(), owedBalance, "The withdrawn amount is not correct");
+		assert.equal(owedBalance, userFinalBalance, "The claim was not sucessfull");
+		assert.equal((contractInitialBalance - owedBalance), contractFinalBalance, "The claim was not sucessfull");
+		assert.equal(hasToClaim.toNumber(), 0, "The user must have nothing to claim");
 	})
 
-	it.only("should show how many tokesn the user has to claim", async () => {
-		let startDate = (Math.floor(Date.now() / 1000) + 100)
-		let recipientAddress = accounts[2].signer.address
-		let recipientPercentage = 1
-
+	it("should successfully call the claim function for first and second period", async () => {
+		let provider = new ethers.providers.JsonRpcProvider();
+		let startDate = ((await provider.getBlock()).timestamp) + 100
 		await vestingContract.setStartDate(startDate);
+		let recipientAddress = accounts[2].signer.address
+		let recipientPercentage = 1000
+
 		await vestingContract.addRecipient(recipientAddress, recipientPercentage);
-		console.log(deployer.provider)
+
+		let contractInitialBalance = await allianceBlockToken.balanceOf(vestingContract.contractAddress);
 
 		let seconds = 600000;
-		// await utils.timeTravel(deployer.provider, seconds)
+		await utils.timeTravel(deployer.provider, seconds)
 
-		let balance = await vestingContract.from(recipientAddress).hasClaim();
-		console.log(balance.period.toNumber())
+		await vestingContract.from(recipientAddress).claim()
+		seconds = 604800;// 1 week
+		seconds = ethers.BigNumber.from(604800);
+		seconds = seconds.mul(4); // 1 month
+		await utils.timeTravel(deployer.provider, seconds.toNumber())
+
+		await vestingContract.from(recipientAddress).claim()
+
+		let userFinalBalance = await allianceBlockToken.balanceOf(recipientAddress)
+		let contractFinalBalance = await allianceBlockToken.balanceOf(vestingContract.contractAddress);
+		let owedBalance = cumulativeAmounts[1] * recipientPercentage / 100000
+		let recipient = await vestingContract.recipients(recipientAddress);
+		let hasToClaim = await vestingContract.from(recipientAddress).hasClaim()
+
+		assert.equal(recipient.withdrawnAmount.toNumber(), owedBalance, "The withdrawn amount is not correct");
+		assert.equal(owedBalance, userFinalBalance, "The claim was not sucessfull");
+		assert.equal((contractInitialBalance - owedBalance), contractFinalBalance, "The claim was not sucessfull");
+		assert.equal(hasToClaim.toNumber(), 0, "The user must have nothing to claim");
 	})
 
+	it("should fail to claim if there is not start date", async() => {
+		let recipientAddress = accounts[2].signer.address
+		await assert.revertWith(vestingContract.from(recipientAddress).claim(), "The vesting hasn't started");
+
+	})
+	it("should fail to claim if there is no start date", async () => {
+		let recipientAddress = accounts[2].signer.address
+		let provider = new ethers.providers.JsonRpcProvider();
+		let startDate = ((await provider.getBlock()).timestamp) + 10000
+		await vestingContract.setStartDate(startDate);
+		await assert.revertWith(vestingContract.from(recipientAddress).claim(), "The vesting hasn't started");
+	})
+
+	it("should show how many tokens the user has to claim", async () => {
+
+		let provider = new ethers.providers.JsonRpcProvider();
+		let startDate = ((await provider.getBlock()).timestamp) + 100
+		await vestingContract.setStartDate(startDate);
+
+		let seconds = 86400; //1 day
+		await utils.timeTravel(deployer.provider, seconds)
+		let recipientAddress = accounts[2].signer.address
+		let recipientPercentage = 1000
+
+		await vestingContract.addRecipient(recipientAddress, recipientPercentage);
+		let balance = await vestingContract.from(recipientAddress).hasClaim();
+		let owedBalance = cumulativeAmounts[0] * recipientPercentage / 100000
+		assert.equal(balance.toNumber(), owedBalance, "The owed balance is not correct	")
+	})
+
+	it("should fail if there is no start date", async () => {
+		let recipientAddress = accounts[2].signer.address
+		await assert.revertWith(vestingContract.from(recipientAddress).hasClaim(), "The vesting hasn't started");
+	})
+	it("should fail if there is no start date", async () => {
+		let recipientAddress = accounts[2].signer.address
+		let provider = new ethers.providers.JsonRpcProvider();
+		let startDate = ((await provider.getBlock()).timestamp) + 10000
+		await vestingContract.setStartDate(startDate);
+		await assert.revertWith(vestingContract.from(recipientAddress).hasClaim(), "The vesting hasn't started");
+	})
+
+	it("shouyld return zero if the recipient is not in part of the vesting", async () => {
+		let provider = new ethers.providers.JsonRpcProvider();
+		let startDate = ((await provider.getBlock()).timestamp) + 100
+		await vestingContract.setStartDate(startDate);
+
+		let seconds = 86400; //1 day
+		await utils.timeTravel(deployer.provider, seconds)
+
+		let balance = await vestingContract.from(accounts[6]).hasClaim();
+		let owedBalance = 0
+		assert.equal(balance.toNumber(), owedBalance, "The owed balance is not correct	")
+	})
 });

@@ -14,7 +14,7 @@ contract Vesting is Ownable {
 
     struct Recipient {
         uint256 withdrawnAmount;
-        uint256 withdrawPercetange;
+        uint256 withdrawPercentage;
     }
 
     uint256 public totalRecipients = 0;
@@ -53,11 +53,8 @@ contract Vesting is Ownable {
             _cumulativeAmountsToVest.length > 0,
             "Vesting schedule amounts are missing"
         );
-        require(
-            _cumulativeAmountsToVest.length < 25,
-            "Vesting schedule is greater than two years"
-        );
         token = IERC20(_tokenAddress);
+        cumulativeAmountsToVest = _cumulativeAmountsToVest;
     }
 
     /**
@@ -114,18 +111,9 @@ contract Vesting is Ownable {
      */
     function claim() public {
         require(startDate != 0, "The vesting hasn't started");
-        require(now >= startDate, "The vesting hasn't stated");
-        uint256 period = (now - startDate) % (periodLength);
+        require(now >= startDate, "The vesting hasn't started");
 
-        if (period >= cumulativeAmountsToVest.length) {
-            period = cumulativeAmountsToVest.length - 1;
-        }
-        uint256 calculatedAmount = PercentageCalculator.div(
-            cumulativeAmountsToVest[period],
-            recipients[msg.sender].withdrawPercetange
-        );
-        uint256 owedAmount = calculatedAmount -
-            recipients[msg.sender].withdrawnAmount;
+        (uint256 owedAmount, uint256 calculatedAmount) = calculateAmounts();
         recipients[msg.sender].withdrawnAmount = calculatedAmount;
         token.transfer(msg.sender, owedAmount);
         emit LogTokensClaimed(msg.sender, owedAmount);
@@ -135,20 +123,30 @@ contract Vesting is Ownable {
      * @dev Function that returns the amount that the user can withdraw at the current period.
      * @return _owedAmount The amount that the user can withdraw at the current period.
      */
-    function hasClaim() public view returns (uint256 _owedAmount, uint256 period) {
+    function hasClaim() public view returns (uint256 _owedAmount) {
         require(startDate != 0, "The vesting hasn't started");
-        require(now >= startDate, "The vesting hasn't stated");
+        require(now >= startDate, "The vesting hasn't started");
 
-        uint256 period = (now - startDate) % (periodLength);
+        (uint256 owedAmount, uint256 calculatedAmount) = calculateAmounts();
+        return owedAmount;
+    }
+
+    function calculateAmounts()
+        internal
+        view
+        returns (uint256 _owedAmount, uint256 _calculatedAmount)
+    {
+        uint256 period = (now - startDate) / (periodLength);
         if (period >= cumulativeAmountsToVest.length) {
             period = cumulativeAmountsToVest.length - 1;
         }
         uint256 calculatedAmount = PercentageCalculator.div(
             cumulativeAmountsToVest[period],
-            recipients[msg.sender].withdrawPercetange
+            recipients[msg.sender].withdrawPercentage
         );
         uint256 owedAmount = calculatedAmount -
             recipients[msg.sender].withdrawnAmount;
-        return (owedAmount,period);
+
+        return (owedAmount, calculatedAmount);
     }
 }
