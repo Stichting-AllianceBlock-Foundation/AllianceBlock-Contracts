@@ -98,8 +98,8 @@ contract Vesting is Ownable {
         uint256[] memory _withdrawPercentages
     ) public onlyOwner {
         require(
-            _recipients.length < 250,
-            "The recipients must be not more than 250"
+            _recipients.length < 230,
+            "The recipients must be not more than 230"
         );
         require(
             _recipients.length == _withdrawPercentages.length,
@@ -114,7 +114,7 @@ contract Vesting is Ownable {
      * @dev Function that withdraws all available tokens for the current period
      */
     function claim() public {
-        require(startDate != 0, "The vesting hasn't started");
+		require(startDate != 0, "The vesting hasn't started");
         require(now >= startDate, "The vesting hasn't started");
 
         (uint256 owedAmount, uint256 calculatedAmount) = calculateAmounts();
@@ -128,8 +128,9 @@ contract Vesting is Ownable {
      * @return _owedAmount The amount that the user can withdraw at the current period.
      */
     function hasClaim() public view returns (uint256 _owedAmount) {
-        require(startDate != 0, "The vesting hasn't started");
-        require(now >= startDate, "The vesting hasn't started");
+        if(now <= startDate) {
+			return 0;
+		}
 
         (uint256 owedAmount, uint256 calculatedAmount) = calculateAmounts();
         return owedAmount;

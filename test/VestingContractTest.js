@@ -111,7 +111,7 @@ describe('Vesting Contract', function () {
 		await assert.revertWith(vestingContract.addRecipient(zeroAddress, recipientPercentage), "Recepient Address can't be zero address")
 	})
 
-	it.only("should add multiple recipients", async () => {
+	it("should add multiple recipients", async () => {
 		let recipientAddresses = [accounts[1].signer.address, accounts[2].signer.address];
 		let recipientsPercentages = [1000, 2000];
 
@@ -119,23 +119,38 @@ describe('Vesting Contract', function () {
 		let totalRecipients = await vestingContract.totalRecipients();
 		let recipient = await vestingContract.recipients(recipientAddresses[1]);
 		let totalPercentages = await vestingContract.totalPercentages()
-		console.log(totalPercentages.toNumber())
 		assert.equal(totalPercentages.toNumber(), 3000, "Total percentages are wrong")
 		assert.equal(recipientAddresses.length, totalRecipients, "Total recipients number is not correct");
 		assert.equal(recipient.withdrawPercentage.toNumber(), recipientsPercentages[1], "Recipient data is not correct")
 	})
 
-	it("should add multiple recipients", async () => {
+	it("should add  max recipients", async () => {
 		let recipientAddresses = []
 		let recipientsPercentages = []
 
-		for (let i = 0; i < 249; i++) {
+		for (let i = 0; i < 229; i++) {
 			let wallet = ethers.Wallet.createRandom()
 			recipientAddresses.push(wallet.address)
-			recipientsPercentages.push(1000)
+			recipientsPercentages.push(1)
 		}
 
+		await vestingContract.addMultipleRecipients(recipientAddresses, recipientsPercentages)
+		let totalRecipients = await vestingContract.totalRecipients();
+		let recipient = await vestingContract.recipients(recipientAddresses[1]);
 
+		assert.equal(recipientAddresses.length, totalRecipients, "Total recipients number is not correct");
+		assert.equal(recipient.withdrawPercentage.toNumber(), recipientsPercentages[1], "Recipient data is not correct")
+	})
+
+	xit("should add multiple recipients with strange", async () => {
+		let recipientAddresses = []
+		let recipientsPercentages = []
+
+		for (let i = 0; i < 10; i++) {
+			let wallet = ethers.Wallet.createRandom()
+			recipientAddresses.push(wallet.address)
+			recipientsPercentages.push(1)
+		}
 
 		await vestingContract.addMultipleRecipients(recipientAddresses, recipientsPercentages)
 		let totalRecipients = await vestingContract.totalRecipients();
@@ -154,7 +169,7 @@ describe('Vesting Contract', function () {
 			recipientAddresses.push(wallet.address)
 			recipientsPercentages.push(10000)
 		}
-		await assert.revertWith(vestingContract.addMultipleRecipients(recipientAddresses, recipientsPercentages),"Total percentages exceeds 100%")
+		await assert.revertWith(vestingContract.addMultipleRecipients(recipientAddresses, recipientsPercentages), "Total percentages exceeds 100%")
 	})
 
 	it("should fail if trying to add multiple recipients from non owner address", async () => {
@@ -171,7 +186,7 @@ describe('Vesting Contract', function () {
 		await assert.revertWith(vestingContract.addMultipleRecipients(recipientAddresses, recipientsPercentages), "The two arryas are with different length");
 	})
 
-	it("should fail if tryong to add more than 50 recipients", async () => {
+	it("should fail if tryong to add more than 230 recipients", async () => {
 		let recipientAddresses = [];
 		let recipientsPercentages = [];
 
@@ -180,7 +195,7 @@ describe('Vesting Contract', function () {
 			recipientAddresses.push(wallet.address)
 			recipientsPercentages.push(10000)
 		}
-		await assert.revertWith(vestingContract.addMultipleRecipients(recipientAddresses, recipientsPercentages), "The recipients must be not more than 250");
+		await assert.revertWith(vestingContract.addMultipleRecipients(recipientAddresses, recipientsPercentages), "The recipients must be not more than 230");
 
 	})
 
@@ -276,16 +291,18 @@ describe('Vesting Contract', function () {
 		assert.equal(balance.toNumber(), owedBalance, "The owed balance is not correct	")
 	})
 
-	it("should fail if there is no start date", async () => {
+	it("should return zero if there is no start date", async () => {
 		let recipientAddress = accounts[2].signer.address
-		await assert.revertWith(vestingContract.from(recipientAddress).hasClaim(), "The vesting hasn't started");
+		let owedAmount = await vestingContract.from(recipientAddress).hasClaim();
+		assert.equal(owedAmount.toNumber(), 0, "The owed amount is wrong");
 	})
-	it("should fail if there is no start date", async () => {
+	it("should fail if the vetins hasn'st started", async () => {
 		let recipientAddress = accounts[2].signer.address
 		let provider = new ethers.providers.JsonRpcProvider();
 		let startDate = ((await provider.getBlock()).timestamp) + 10000
 		await vestingContract.setStartDate(startDate);
-		await assert.revertWith(vestingContract.from(recipientAddress).hasClaim(), "The vesting hasn't started");
+		let owedAmount = await vestingContract.from(recipientAddress).hasClaim();
+		assert.equal(owedAmount.toNumber(), 0, "The owed amount is wrong");
 	})
 
 	it("shouyld return zero if the recipient is not in part of the vesting", async () => {
