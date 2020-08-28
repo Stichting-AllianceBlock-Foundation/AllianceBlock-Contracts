@@ -11,6 +11,6 @@ library PercentageCalculator {
 	The division is made by 10000 
 	*/ 
 	function div(uint256 _amount, uint256 _percentage) public view returns(uint256) {
-		return _amount.mul(_percentage).div(10000);
+		return _amount.mul(_percentage).div(100000);
 	}
 }
