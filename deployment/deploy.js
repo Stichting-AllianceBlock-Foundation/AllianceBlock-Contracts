@@ -26,7 +26,7 @@ const deploy = async (network, secret, etherscanApiKey) => {
 	const result1 = await allianceBlockToken.hasRole(pauserRole, address);
 	console.log('Multi sig has a pauser role: ', result1);
 	const result2 = await allianceBlockToken.hasRole(defaultAdminRole, address);
-	console.log('Multi sig has a admin role: ', result2);
+	console.log('Multi sig has an admin role: ', result2);
 	const revokeMinterRoleTransaction = await allianceBlockToken.revokeRole(minterRole, deployerAddress);
 	await allianceBlockToken.verboseWaitForTransaction(revokeMinterRoleTransaction, 'Revoking minter role');
 	const revokePauserRoleTransaction = await allianceBlockToken.revokeRole(pauserRole, deployerAddress)
