@@ -13,15 +13,20 @@ const deploy = async (network, secret, etherscanApiKey) => {
 	const address = '0xD033fAC764fDB548542fe4c6897562a9114BdBb7';
 	const minterRole = await allianceBlockToken.MINTER_ROLE();
 	const pauserRole = await allianceBlockToken.PAUSER_ROLE();
+	const defaultAdminRole = await allianceBlockToken.DEFAULT_ADMIN_ROLE();
 	const deployerAddress = deployer.signer.address;
 	const minterRoleTransaction = await allianceBlockToken.grantRole(minterRole, address);
 	await allianceBlockToken.verboseWaitForTransaction(minterRoleTransaction, 'Granting minter role');
 	const pauserRoleTransaction = await allianceBlockToken.grantRole(pauserRole, address);
 	await allianceBlockToken.verboseWaitForTransaction(pauserRoleTransaction, 'Granting pauser role');
+	const defaultAdminRoleTransaction = await allianceBlockToken.grantRole(defaultAdminRole, address);
+	await allianceBlockToken.verboseWaitForTransaction(defaultAdminRoleTransaction, 'Granting admin role');
 	const result = await allianceBlockToken.hasRole(minterRole, address);
 	console.log('Multi sig has a minter role: ', result);
 	const result1 = await allianceBlockToken.hasRole(pauserRole, address);
 	console.log('Multi sig has a pauser role: ', result1);
+	const result2 = await allianceBlockToken.hasRole(defaultAdminRole, address);
+	console.log('Multi sig has a admin role: ', result2);
 	const revokeMinterRoleTransaction = await allianceBlockToken.revokeRole(minterRole, deployerAddress);
 	await allianceBlockToken.verboseWaitForTransaction(revokeMinterRoleTransaction, 'Revoking minter role');
 	const revokePauserRoleTransaction = await allianceBlockToken.revokeRole(pauserRole, deployerAddress)
