@@ -31,6 +31,8 @@ const deploy = async (network, secret, etherscanApiKey) => {
 	await allianceBlockToken.verboseWaitForTransaction(revokeMinterRoleTransaction, 'Revoking minter role');
 	const revokePauserRoleTransaction = await allianceBlockToken.revokeRole(pauserRole, deployerAddress)
 	await allianceBlockToken.verboseWaitForTransaction(revokePauserRoleTransaction, 'Revoking pauser role');
+	const revokeAdminRoleTransaction = await allianceBlockToken.revokeRole(defaultAdminRole, deployerAddress)
+	await allianceBlockToken.verboseWaitForTransaction(revokeAdminRoleTransaction, 'Revoking admin role');
 	await deployer.deploy(BatchTransfer);
 
 	const percentageCalculator = await deployer.deploy(PercentageCalculator);
