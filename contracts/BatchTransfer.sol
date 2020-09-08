@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity 0.6.12;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./token/AllianceBlockToken.sol";
 
 contract BatchTransfer {
 
@@ -11,7 +10,8 @@ contract BatchTransfer {
             IERC20 token = IERC20(deployedTokenAddress);
             for(uint i = 0; i < addresses.length; i++) { 
                 require(balances[i] <= token.balanceOf(msg.sender), "Not enough balance");
-                token.transferFrom(msg.sender, addresses[i], balances[i]);
+                bool result = token.transferFrom(msg.sender, addresses[i], balances[i]);
+                require(result, "The transfer was not successful");
             }
     }
 } 

@@ -1,5 +1,5 @@
 //"SPDX-License-Identifier: MIT"
-pragma solidity ^0.6.0;
+pragma solidity 0.6.12;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -7,10 +7,10 @@ import "./PercentageCalculator.sol";
 
 contract Vesting is Ownable {
     uint256 public startDate;
-    uint256 periodLength = 30 days;
-    uint256[24] public cumulativeAmountsToVest;
+    uint256 internal constant periodLength = 30 days;
+    uint256[35] public cumulativeAmountsToVest;
     uint256 public totalPercentages;
-    IERC20 token;
+    IERC20 internal token;
 
     struct Recipient {
         uint256 withdrawnAmount;
@@ -46,7 +46,7 @@ contract Vesting is Ownable {
      */
     constructor(
         address _tokenAddress,
-        uint256[24] memory _cumulativeAmountsToVest
+        uint256[35] memory _cumulativeAmountsToVest
     ) public {
         require(
             _tokenAddress != address(0),
@@ -90,7 +90,7 @@ contract Vesting is Ownable {
 
     /**
      * @dev Function add  multiple recipients to the vesting contract
-     * @param _recipients Array of recipient addresses
+     * @param _recipients Array of recipient addresses. The arrya length should be less than 230, otherwise it will overflow the gas limit
      * @param _withdrawPercentages Corresponding percentages of the recipients
      */
     function addMultipleRecipients(
@@ -119,7 +119,8 @@ contract Vesting is Ownable {
 
         (uint256 owedAmount, uint256 calculatedAmount) = calculateAmounts();
         recipients[msg.sender].withdrawnAmount = calculatedAmount;
-        token.transfer(msg.sender, owedAmount);
+        bool result = token.transfer(msg.sender, owedAmount);
+        require(result, "The claim was not successful");
         emit LogTokensClaimed(msg.sender, owedAmount);
     }
 
@@ -132,7 +133,7 @@ contract Vesting is Ownable {
             return 0;
         }
 
-        (uint256 owedAmount, uint256 calculatedAmount) = calculateAmounts();
+        (uint256 owedAmount, uint256 _) = calculateAmounts();
         return owedAmount;
     }
 
