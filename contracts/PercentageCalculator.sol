@@ -1,16 +1,13 @@
-//"SPDX-License-Identifier: MIT"
-pragma solidity ^0.6.0;
-
-import "@openzeppelin/contracts/math/SafeMath.sol";
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 library PercentageCalculator {
-	using SafeMath for uint256;
 
 	/*
 	Note: Percentages will be provided in thousands to represent 3 digits after the decimal point.
-	The division is made by 100000 
-	*/ 
+	The division is made by 100000
+	*/
 	function div(uint256 _amount, uint256 _percentage) public pure returns(uint256) {
-		return _amount.mul(_percentage).div(100000);
+		return _amount * _percentage / 100000;
 	}
 }

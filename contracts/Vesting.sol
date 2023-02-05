@@ -1,5 +1,5 @@
-//"SPDX-License-Identifier: MIT"
-pragma solidity 0.6.12;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -47,7 +47,7 @@ contract Vesting is Ownable {
     constructor(
         address _tokenAddress,
         uint256[35] memory _cumulativeAmountsToVest
-    ) public {
+    ) {
         require(
             _tokenAddress != address(0),
             "Token Address can't be zero address"
@@ -61,7 +61,7 @@ contract Vesting is Ownable {
      * @param _startDate The start date of the veseting presented as a timestamp
      */
     function setStartDate(uint256 _startDate) public onlyOwner {
-        require(_startDate >= now, "Start Date can't be in the past");
+        require(_startDate >= block.timestamp, "Start Date can't be in the past");
 
         startDate = _startDate;
         emit LogStartDateSet(address(msg.sender), _startDate);
@@ -115,7 +115,7 @@ contract Vesting is Ownable {
      */
     function claim() public {
         require(startDate != 0, "The vesting hasn't started");
-        require(now >= startDate, "The vesting hasn't started");
+        require(block.timestamp >= startDate, "The vesting hasn't started");
 
         (uint256 owedAmount, uint256 calculatedAmount) = calculateAmounts();
         recipients[msg.sender].withdrawnAmount = calculatedAmount;
@@ -129,11 +129,11 @@ contract Vesting is Ownable {
      * @return _owedAmount The amount that the user can withdraw at the current period.
      */
     function hasClaim() public view returns (uint256 _owedAmount) {
-        if (now <= startDate) {
+        if (block.timestamp <= startDate) {
             return 0;
         }
 
-        (uint256 owedAmount, uint256 _) = calculateAmounts();
+        (uint256 owedAmount, ) = calculateAmounts();
         return owedAmount;
     }
 
@@ -142,7 +142,7 @@ contract Vesting is Ownable {
         view
         returns (uint256 _owedAmount, uint256 _calculatedAmount)
     {
-        uint256 period = (now - startDate) / (periodLength);
+        uint256 period = (block.timestamp - startDate) / (periodLength);
         if (period >= cumulativeAmountsToVest.length) {
             period = cumulativeAmountsToVest.length - 1;
         }

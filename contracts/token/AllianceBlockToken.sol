@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/presets/ERC20PresetMinterPauser.sol";
+import "@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser.sol";
 
 contract AllianceBlockToken is ERC20PresetMinterPauser {
-     constructor() public ERC20PresetMinterPauser("AllianceBlock Token", "ALBT") {}
+     constructor() ERC20PresetMinterPauser("AllianceBlock Token", "ALBT") {}
 
      function removeMinterRole(address owner) public {
           revokeRole(MINTER_ROLE, owner);
