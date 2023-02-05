@@ -3,13 +3,17 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/presets/ERC20PresetMinterPauserUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20SnapshotUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
 
 
 error TokenTransferWhilePaused();
 error TokenTransferToThisContract();
 error SnapshotInvalidRole();
+error BatchMintInvalidRole();
+error BatchMintNotSameLength(uint256 recipientsLength, uint256 valuesLength);
 
-contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20SnapshotUpgradeable {
+contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20SnapshotUpgradeable, ERC20PermitUpgradeable {
+    uint256 private constant VERSION = 1;
 
     // "AllianceBlock Token", "ALBT"
      function init(
@@ -20,6 +24,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
     ) public initializer {
         __ERC20_init_unchained(name, symbol);
         __ERC20Snapshot_init_unchained();
+        __ERC20Permit_init_unchained();
         __Pausable_init_unchained();
         // We don't use __ERC20PresetMinterPauser_init_unchained to avoid giving permisions to _msgSender
         _setupRole(DEFAULT_ADMIN_ROLE, admin);
@@ -84,6 +89,36 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
     function pause() public override {
         super.pause();
         _snapshot();
+    }
+
+    /// @dev Returns the version of the contract.
+    function contractVersion() external pure returns (uint256) {
+        return VERSION;
+    }
+
+    /**
+     * @dev Mints multiple values for multiple receivers
+     */
+    function batchMint(address[] memory recipients, uint256[] memory values) public view returns(bool) {
+        if (!hasRole(MINTER_ROLE, _msgSender())) {
+            revert BatchMintInvalidRole();
+        }
+        uint256 recipientLength = recipients.length;
+        if (recipientLength != values.length) {
+            revert BatchMintNotSameLength(recipientLength, values.length);
+        }
+
+        uint256 totalValue = 0;
+        for(uint256 i = 0; i < recipientLength; i++) {
+            _mint(recipients[i], values[i]);
+             unchecked {
+                // Overflow not possible: totalValue + amount is at most totalSupply + amount, which is checked above.
+                totalValue += values[i];
+            }
+        }
+
+        emit BatchMint(_msgSender(), recipientLength, totalValue);
+        return true;
     }
 
 
