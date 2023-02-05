@@ -14,4 +14,5 @@ contract BatchTransfer {
                 require(result, "The transfer was not successful");
             }
     }
+
 }

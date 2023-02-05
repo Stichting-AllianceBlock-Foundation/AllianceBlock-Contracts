@@ -1,8 +1,4 @@
-const accounts = process.env.PRIVATE_KEY
-  ? [process.env.PRIVATE_KEY]
-  : {
-    mnemonic: process.env.HDWALLET_MNEMONIC
-  }
+import { accounts, forking } from "./utils/constants";
 
 const networks: any = {
   coverage: {
@@ -15,20 +11,15 @@ const networks: any = {
   }
 }
 
-if (process.env.ALCHEMY_URL && process.env.FORK_ENABLED) {
+if (forking.enabled) {
   networks.hardhat = {
     chainId: 1,
-    forking: {
-      url: process.env.ALCHEMY_URL
-    },
+    forking,
     accounts
-  }
-  if (process.env.FORK_BLOCK_NUMBER) {
-    networks.hardhat.forking.blockNumber = parseInt(process.env.FORK_BLOCK_NUMBER)
   }
 }
 
-if (process.env.HDWALLET_MNEMONIC || process.env.PRIVATE_KEY) {
+if (accounts) {
   networks.mumbai = {
     chainId: 80001,
     url: 'https://rpc-mumbai.maticvigil.com',

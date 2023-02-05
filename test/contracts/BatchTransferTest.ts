@@ -1,29 +1,30 @@
-const etherlime = require('etherlime-lib');
-const BatchTransfer = require('../../build/BatchTransfer.json');
-const AllianceBlockToken = require('../../build/AllianceBlockToken.json');
-const { ethers } = require('ethers');
+import { BigNumberish } from 'ethers';
+import { ethers } from 'hardhat'
+import {AllianceBlockToken, BatchTransfer} from '../../typechain-types';
+import { PromiseOrValue } from '../../typechain-types/common';
 
 
-describe('BatchTransfer', function () {
-  const initialHolderSecretKey = accounts[0].secretKey;
+describe('BatchTransfer', async function () {
+  const accounts = await ethers.getSigners();
   const initialHolder = accounts[0].signer.address;
-  let deployer;
-  let batchTransfer;
-  let allianceBlockToken; 
-  let tokenAddress;
-  let batchTransferAddress;
+  const deployer  = accounts[0];
+  const AllianceBlockTokenFactory = await ethers.getContractFactory('AllianceBlockToken');
+  const BatchTransferFactory = await ethers.getContractFactory('BatchTransfer');
+  let allianceBlockToken: AllianceBlockToken;
+  let batchTransfer: BatchTransfer;
+  let tokenAddress: string;
+  let batchTransferAddress: string;
 
   beforeEach(async function () {
-    deployer = new etherlime.EtherlimeGanacheDeployer(initialHolderSecretKey);
-    allianceBlockToken = await deployer.deploy(AllianceBlockToken, {});
-    batchTransfer = await deployer.deploy(BatchTransfer, {});
-    tokenAddress = allianceBlockToken.contract.address;
-    batchTransferAddress = batchTransfer.signer.address;
+    allianceBlockToken = await AllianceBlockTokenFactory.deploy();
+    batchTransfer = await BatchTransferFactory.deploy();
+    tokenAddress = allianceBlockToken.address;
+    batchTransferAddress = batchTransfer.address;
   });
 
   it("should send tokens to multiple accounts", async () => {
     const tokens = 20;
-    const tokensToSend = [];
+    const tokensToSend: BigNumberish[] = [];
     const accountsToSend = accounts.map(el => {
       tokensToSend.push(1);
       return el.signer.address;

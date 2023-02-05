@@ -1,19 +1,18 @@
-const etherlime = require('etherlime-lib');
-const {
-	ethers,
-} = require("ethers");
-const AllianceBlockToken = require('../build/AllianceBlockToken.json');
-const VestingContract = require('../build/Vesting.json');
-const PercentageCalculator = require('../build/PercentageCalculator.json')
+import { ethers } from 'hardhat'
+import {AllianceBlockToken, Vesting, PercentageCalculator} from '../typechain-types';
 
-describe('Vesting Contract', function () {
-	const owner = accounts[0]
+describe('Vesting Contract', async function () {
+  const accounts = await ethers.getSigners()
+  const AllianceBlockTokenFactory = await ethers.getContractFactory('AllianceBlockToken');
+  const VestingContractFactory = await ethers.getContractFactory('Vesting');
+  const PercentageCalculatorFactory = await ethers.getContractFactory('PercentageCalculator');
+	const owner = accounts[0];
 	const zeroAddress = "0x0000000000000000000000000000000000000000";
-	let deployer;
-	let vestingContract;
-	let allianceBlockToken;
-	let percentageCalculator;
-	let libraries
+	const deployer = accounts[0];
+	let vestingContract: Vesting;
+	let allianceBlockToken: AllianceBlockToken;
+	let percentageCalculator: PercentageCalculator;
+	const libraries = { PercentageCalculator: '' }
 	let tokens = 100000
 
 	let amount = ethers.BigNumber.from(100);
@@ -22,14 +21,12 @@ describe('Vesting Contract', function () {
 
 	let cumulativeAmounts = [10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000,240000,250000,260000,270000,280000,290000,300000,310000,320000,330000,340000, finalAmount]
 	beforeEach(async function () {
-		deployer = new etherlime.EtherlimeGanacheDeployer(owner.secretKey);
-		allianceBlockToken = await deployer.deploy(AllianceBlockToken, {});
-		percentageCalculator = await deployer.deploy(PercentageCalculator, {});
-		libraries = {
-			PercentageCalculator: percentageCalculator.contractAddress
+		allianceBlockToken = await AllianceBlockTokenFactory.deploy();
+		percentageCalculator = await PercentageCalculatorFactory.deploy();
+		libraries.PercentageCalculator = percentageCalculator.address;
 		}
-		vestingContract = await deployer.deploy(VestingContract, libraries, allianceBlockToken.contractAddress, cumulativeAmounts);
-		await allianceBlockToken.mint(vestingContract.contractAddress, tokens);
+		vestingContract = await VestingContractFactory.deploy(allianceBlockToken.address, cumulativeAmounts, {libraries});
+		await allianceBlockToken.mint(vestingContract.address, tokens);
 	});
 
 	it("should have the proper owner address", async () => {
@@ -39,7 +36,7 @@ describe('Vesting Contract', function () {
 
 
 	it("should not deploy the contract with zero token address", async () => {
-		await assert.revert(deployer.deploy(VestingContract, libraries, zeroAddress, cumulativeAmounts))
+		await assert.revert(VestingContractFactory.deploy(zeroAddress, cumulativeAmounts,{libraries}))
 	})
 
 	it("should set the start date properly and emit event", async () => {

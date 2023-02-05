@@ -1,16 +1,18 @@
-const etherlime = require('etherlime-lib');
-const AllianceBlockToken = require('../../../build/AllianceBlockToken.json');
+import {assert} from 'chai';
+import { ethers } from 'hardhat'
+import {AllianceBlockToken} from '../../../typechain-types';
 
-describe('ERC20', function () {
-  const initialHolderSecretKey = accounts[0].secretKey;
-  const initialHolder = accounts[0].signer.address;
-  const recipient = accounts[1].signer.address;
-  let deployer;
-  let allianceBlockToken;
-  
+
+describe('ERC20', async function () {
+  const signers = await ethers.getSigners()
+  const initialHolder = signers[0].signer.address;
+  const recipient = signers[1].signer.address;
+  const deployer  = signers[0];
+  const AllianceBlockTokenFactory = await ethers.getContractFactory('AllianceBlockToken');
+  let allianceBlockToken: AllianceBlockToken;
+
   beforeEach(async function () {
-    deployer = new etherlime.EtherlimeGanacheDeployer(initialHolderSecretKey);
-    allianceBlockToken = await deployer.deploy(AllianceBlockToken, {});
+    allianceBlockToken =  await AllianceBlockTokenFactory.deploy();
   });
 
   it("it is correct symbol", async () => {
@@ -33,7 +35,7 @@ describe('ERC20', function () {
     const balance = await allianceBlockToken.balanceOf(initialHolder);
     assert(balance.eq(tokens - burnedTokens), 'Not enough tokens');
   });
-  
+
   it("is possible to send tokens between accounts", async () => {
     const tokens = 100;
     const sendtokens = 1;
@@ -51,9 +53,9 @@ describe('ERC20', function () {
   });
 
   it("remove minter role as owner", async () => {
-    const tokens = 100; 
+    const tokens = 100;
     await allianceBlockToken.removeMinterRole(deployer.signer.address);
     await assert.revertWith(allianceBlockToken.mint(initialHolder, tokens), 'ERC20PresetMinterPauser: must have minter role to mint');
   });
 
-}); 
+});

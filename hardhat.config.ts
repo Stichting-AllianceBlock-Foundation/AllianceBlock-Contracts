@@ -1,6 +1,7 @@
 import networks from './hardhat.networks'
 
 import '@nomicfoundation/hardhat-toolbox'
+import '@nomiclabs/hardhat-ethers';
 import 'hardhat-deploy'
 import 'hardhat-deploy-ethers'
 import 'hardhat-abi-exporter'
@@ -28,11 +29,11 @@ const config = {
   },
   namedAccounts: {
     deployer: {
-      default: 0
+      default: 0,
     },
     admin: {
-      5: multisig,
-      43113: multisig
+      default: multisig,
+      31337: 1
     },
   },
   etherscan: {
@@ -55,6 +56,7 @@ const config = {
   abiExporter: {
     path: './abis',
     runOnCompile: true,
+    only: ['AllianceBlockToken', 'BatchTransfer', 'Vesting'],
     clear: true,
     flat: true,
   }

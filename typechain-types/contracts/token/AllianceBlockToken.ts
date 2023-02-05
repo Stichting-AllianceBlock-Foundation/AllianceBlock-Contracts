@@ -35,26 +35,31 @@ export interface AllianceBlockTokenInterface extends utils.Interface {
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "balanceOfAt(address,uint256)": FunctionFragment;
     "burn(uint256)": FunctionFragment;
     "burnFrom(address,uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
+    "getCurrentSnapshotId()": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "getRoleMember(bytes32,uint256)": FunctionFragment;
     "getRoleMemberCount(bytes32)": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
+    "init(string,string,address,address)": FunctionFragment;
+    "initialize(string,string)": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "pause()": FunctionFragment;
     "paused()": FunctionFragment;
-    "removeMinterRole(address)": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
+    "snapshot()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
     "totalSupply()": FunctionFragment;
+    "totalSupplyAt(uint256)": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
     "unpause()": FunctionFragment;
@@ -68,26 +73,31 @@ export interface AllianceBlockTokenInterface extends utils.Interface {
       | "allowance"
       | "approve"
       | "balanceOf"
+      | "balanceOfAt"
       | "burn"
       | "burnFrom"
       | "decimals"
       | "decreaseAllowance"
+      | "getCurrentSnapshotId"
       | "getRoleAdmin"
       | "getRoleMember"
       | "getRoleMemberCount"
       | "grantRole"
       | "hasRole"
       | "increaseAllowance"
+      | "init"
+      | "initialize"
       | "mint"
       | "name"
       | "pause"
       | "paused"
-      | "removeMinterRole"
       | "renounceRole"
       | "revokeRole"
+      | "snapshot"
       | "supportsInterface"
       | "symbol"
       | "totalSupply"
+      | "totalSupplyAt"
       | "transfer"
       | "transferFrom"
       | "unpause"
@@ -118,6 +128,10 @@ export interface AllianceBlockTokenInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "balanceOfAt",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "burn",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -129,6 +143,10 @@ export interface AllianceBlockTokenInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getCurrentSnapshotId",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getRoleAdmin",
@@ -155,16 +173,25 @@ export interface AllianceBlockTokenInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "init",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "mint",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "removeMinterRole",
-    values: [PromiseOrValue<string>]
-  ): string;
   encodeFunctionData(
     functionFragment: "renounceRole",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
@@ -173,6 +200,7 @@ export interface AllianceBlockTokenInterface extends utils.Interface {
     functionFragment: "revokeRole",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "snapshot", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [PromiseOrValue<BytesLike>]
@@ -181,6 +209,10 @@ export interface AllianceBlockTokenInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "totalSupply",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalSupplyAt",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "transfer",
@@ -211,11 +243,19 @@ export interface AllianceBlockTokenInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "balanceOfAt",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "burnFrom", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "decreaseAllowance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getCurrentSnapshotId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -236,19 +276,18 @@ export interface AllianceBlockTokenInterface extends utils.Interface {
     functionFragment: "increaseAllowance",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "removeMinterRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "renounceRole",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "snapshot", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
@@ -256,6 +295,10 @@ export interface AllianceBlockTokenInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "totalSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalSupplyAt",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
@@ -267,19 +310,23 @@ export interface AllianceBlockTokenInterface extends utils.Interface {
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "Paused(address)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
+    "Snapshot(uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "Unpaused(address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Snapshot"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
 }
@@ -295,6 +342,13 @@ export type ApprovalEvent = TypedEvent<
 >;
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface PausedEventObject {
   account: string;
@@ -339,6 +393,13 @@ export type RoleRevokedEvent = TypedEvent<
 >;
 
 export type RoleRevokedEventFilter = TypedEventFilter<RoleRevokedEvent>;
+
+export interface SnapshotEventObject {
+  id: BigNumber;
+}
+export type SnapshotEvent = TypedEvent<[BigNumber], SnapshotEventObject>;
+
+export type SnapshotEventFilter = TypedEventFilter<SnapshotEvent>;
 
 export interface TransferEventObject {
   from: string;
@@ -409,6 +470,12 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    balanceOfAt(
+      account: PromiseOrValue<string>,
+      snapshotId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     burn(
       amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -427,6 +494,8 @@ export interface AllianceBlockToken extends BaseContract {
       subtractedValue: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    getCurrentSnapshotId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
@@ -462,6 +531,20 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    init(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      admin: PromiseOrValue<string>,
+      minter: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    initialize(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     mint(
       to: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -476,11 +559,6 @@ export interface AllianceBlockToken extends BaseContract {
 
     paused(overrides?: CallOverrides): Promise<[boolean]>;
 
-    removeMinterRole(
-      owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     renounceRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
@@ -493,6 +571,10 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    snapshot(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -501,6 +583,11 @@ export interface AllianceBlockToken extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    totalSupplyAt(
+      snapshotId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     transfer(
       to: PromiseOrValue<string>,
@@ -543,6 +630,12 @@ export interface AllianceBlockToken extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  balanceOfAt(
+    account: PromiseOrValue<string>,
+    snapshotId: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   burn(
     amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -561,6 +654,8 @@ export interface AllianceBlockToken extends BaseContract {
     subtractedValue: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  getCurrentSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
   getRoleAdmin(
     role: PromiseOrValue<BytesLike>,
@@ -596,6 +691,20 @@ export interface AllianceBlockToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  init(
+    name: PromiseOrValue<string>,
+    symbol: PromiseOrValue<string>,
+    admin: PromiseOrValue<string>,
+    minter: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  initialize(
+    name: PromiseOrValue<string>,
+    symbol: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   mint(
     to: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
@@ -610,11 +719,6 @@ export interface AllianceBlockToken extends BaseContract {
 
   paused(overrides?: CallOverrides): Promise<boolean>;
 
-  removeMinterRole(
-    owner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   renounceRole(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
@@ -627,6 +731,10 @@ export interface AllianceBlockToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  snapshot(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   supportsInterface(
     interfaceId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -635,6 +743,11 @@ export interface AllianceBlockToken extends BaseContract {
   symbol(overrides?: CallOverrides): Promise<string>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+  totalSupplyAt(
+    snapshotId: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   transfer(
     to: PromiseOrValue<string>,
@@ -677,6 +790,12 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    balanceOfAt(
+      account: PromiseOrValue<string>,
+      snapshotId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     burn(
       amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -695,6 +814,8 @@ export interface AllianceBlockToken extends BaseContract {
       subtractedValue: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    getCurrentSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
@@ -730,6 +851,20 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    init(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      admin: PromiseOrValue<string>,
+      minter: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    initialize(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     mint(
       to: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -741,11 +876,6 @@ export interface AllianceBlockToken extends BaseContract {
     pause(overrides?: CallOverrides): Promise<void>;
 
     paused(overrides?: CallOverrides): Promise<boolean>;
-
-    removeMinterRole(
-      owner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
 
     renounceRole(
       role: PromiseOrValue<BytesLike>,
@@ -759,6 +889,8 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    snapshot(overrides?: CallOverrides): Promise<BigNumber>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -767,6 +899,11 @@ export interface AllianceBlockToken extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<string>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    totalSupplyAt(
+      snapshotId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     transfer(
       to: PromiseOrValue<string>,
@@ -795,6 +932,9 @@ export interface AllianceBlockToken extends BaseContract {
       spender?: PromiseOrValue<string> | null,
       value?: null
     ): ApprovalEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "Paused(address)"(account?: null): PausedEventFilter;
     Paused(account?: null): PausedEventFilter;
@@ -831,6 +971,9 @@ export interface AllianceBlockToken extends BaseContract {
       account?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null
     ): RoleRevokedEventFilter;
+
+    "Snapshot(uint256)"(id?: null): SnapshotEventFilter;
+    Snapshot(id?: null): SnapshotEventFilter;
 
     "Transfer(address,address,uint256)"(
       from?: PromiseOrValue<string> | null,
@@ -871,6 +1014,12 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    balanceOfAt(
+      account: PromiseOrValue<string>,
+      snapshotId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     burn(
       amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -889,6 +1038,8 @@ export interface AllianceBlockToken extends BaseContract {
       subtractedValue: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    getCurrentSnapshotId(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
@@ -924,6 +1075,20 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    init(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      admin: PromiseOrValue<string>,
+      minter: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    initialize(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     mint(
       to: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -938,11 +1103,6 @@ export interface AllianceBlockToken extends BaseContract {
 
     paused(overrides?: CallOverrides): Promise<BigNumber>;
 
-    removeMinterRole(
-      owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     renounceRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
@@ -955,6 +1115,10 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    snapshot(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -963,6 +1127,11 @@ export interface AllianceBlockToken extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
+    totalSupplyAt(
+      snapshotId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     transfer(
       to: PromiseOrValue<string>,
@@ -1008,6 +1177,12 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    balanceOfAt(
+      account: PromiseOrValue<string>,
+      snapshotId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     burn(
       amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1025,6 +1200,10 @@ export interface AllianceBlockToken extends BaseContract {
       spender: PromiseOrValue<string>,
       subtractedValue: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    getCurrentSnapshotId(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getRoleAdmin(
@@ -1061,6 +1240,20 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    init(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      admin: PromiseOrValue<string>,
+      minter: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    initialize(
+      name: PromiseOrValue<string>,
+      symbol: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     mint(
       to: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1075,11 +1268,6 @@ export interface AllianceBlockToken extends BaseContract {
 
     paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    removeMinterRole(
-      owner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     renounceRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
@@ -1092,6 +1280,10 @@ export interface AllianceBlockToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    snapshot(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1100,6 +1292,11 @@ export interface AllianceBlockToken extends BaseContract {
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    totalSupplyAt(
+      snapshotId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     transfer(
       to: PromiseOrValue<string>,
