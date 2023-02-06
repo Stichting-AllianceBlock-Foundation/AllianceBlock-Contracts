@@ -1,16 +1,17 @@
 import { assert, expect } from 'chai';
-import { BigNumber, ContractFactory } from 'ethers';
+import { BigNumber } from 'ethers';
 import { ethers, deployments } from 'hardhat';
 import { AllianceBlockToken } from '../typechain-types';
 import { TOKEN_NAME, TOKEN_SYMBOL } from '../utils/constants';
+import { crypto } from 'crypto';
 
 
 describe('AllianceBlockToken', function () {
-  let deployer: any, admin: any , recipient: any;
+  let deployer: any, admin: any, recipient: any, anotherAccount: any;
   let token: AllianceBlockToken;
 
   before(async () => {
-    [deployer, admin, recipient] = await ethers.getSigners();
+    [deployer, admin, recipient, anotherAccount] = await ethers.getSigners();
   });
 
   beforeEach(async function () {
@@ -81,6 +82,42 @@ describe('AllianceBlockToken', function () {
     await token.revokeRole(role, admin.address);
     await expect(token.mint(admin.address, tokens))
       .to.be.revertedWith('ERC20PresetMinterPauser: must have minter role to mint');
+  });
+
+  describe('BatchMint', function () {
+    it("is possible to mint tokens to multiple 10 accounts", async () => {
+      const tokens: BigNumber[] = [];
+      const recipients: string[] = [];
+      const numberOfAccounts = 10;
+      for (let i = 0; i < numberOfAccounts; i++) {
+        const address = Buffer.from(ethers.utils.randomBytes(20)).toString('hex');
+        recipients.push(address);
+        tokens.push(BigNumber.from(Math.floor(Math.random() * 100)));
+      }
+      await token.batchMint(recipients, tokens);
+      for (let i = 0; i < numberOfAccounts; i++) {
+        const balance = await token.balanceOf(recipients[i]);
+        assert(balance.eq(tokens[i]), 'Incorrect balance after batch mint');
+      }
+    });
+
+    it("is possible to mint tokens to multiple 500 accounts", async () => {
+      const tokens: BigNumber[] = [];
+      const recipients: string[] = [];
+      const numberOfAccounts = 500;
+      for (let i = 0; i < numberOfAccounts; i++) {
+        const address = Buffer.from(ethers.utils.randomBytes(20)).toString('hex');
+        recipients.push(address);
+        tokens.push(BigNumber.from(Math.floor(Math.random() * 100)));
+      }
+      await token.batchMint(recipients, tokens);
+      for (let i = 0; i < numberOfAccounts; i++) {
+        const balance = await token.balanceOf(recipients[i]);
+        assert(balance.eq(tokens[i]), 'Incorrect balance after batch mint');
+      }
+    });
+
+
   });
 
 });

@@ -19,7 +19,7 @@ const config = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 800
+        runs: 6000
       }
     }
   },
@@ -27,7 +27,7 @@ const config = {
   gasReporter: {
     currency: 'USD',
     gasPrice: 30,
-    enabled: process.env.REPORT_GAS ? true : false
+    enabled: true
   },
   namedAccounts: {
     deployer: {
