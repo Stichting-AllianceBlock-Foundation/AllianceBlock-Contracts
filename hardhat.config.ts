@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv';
 import networks from './hardhat.networks'
 
 import '@nomicfoundation/hardhat-toolbox'
@@ -8,6 +9,7 @@ import 'hardhat-abi-exporter'
 import 'hardhat-docgen'
 import 'hardhat-contract-sizer'
 
+dotenv.config();
 
 const multisig = '0xD033fAC764fDB548542fe4c6897562a9114BdBb7' // Account 1
 

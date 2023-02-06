@@ -1,4 +1,7 @@
-import { accounts, forking } from "./utils/constants";
+import { accounts, forking, INFURA_API_KEY } from "./utils/constants";
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const networks: any = {
   coverage: {
@@ -20,7 +23,7 @@ if (forking.enabled) {
 }
 
 if (accounts) {
-  networks.mumbai = {
+  networks.polygonMumbai = {
     chainId: 80001,
     url: 'https://rpc-mumbai.maticvigil.com',
     accounts,
@@ -32,7 +35,7 @@ if (accounts) {
     accounts,
   };
 
-  networks.fuji = {
+  networks.avalancheFujiTestnet = {
     chainId: 43113,
     url: 'https://api.avax-test.network/ext/bc/C/rpc',
     accounts,
@@ -47,20 +50,20 @@ if (accounts) {
 //url: 'https://api.avax-test.network/ext/bc/C/rpc',
 //blockGasLimit: 100000,
 
-if (process.env.POLYGONSCAN_API_KEY && (process.env.HDWALLET_MNEMONIC || process.env.PRIVATE_KEY)) {
-  networks.matic = {
+if (process.env.ALCHEMY_API_KEY && accounts) {
+  networks.polygon = {
     chainId: 137,
-    url: `https://polygon-mainnet.g.alchemy.com/v2/${process.env.POLYGONSCAN_API_KEY}`,
+    url: `https://polygon-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
     accounts
   }
 } else {
-  console.warn('No polygonscan or hdwallet available for testnets')
+  console.warn('No alchemy or hdwallet available for testnets')
 }
 
-if (process.env.INFURA_API_KEY && (process.env.HDWALLET_MNEMONIC || process.env.PRIVATE_KEY)) {
+if (INFURA_API_KEY && accounts) {
 
   networks.goerli = {
-    url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
+    url: `https://goerli.infura.io/v3/${INFURA_API_KEY}`,
     accounts,
     gas: 2100000,
     gasPrice: 50000000000,
@@ -69,7 +72,7 @@ if (process.env.INFURA_API_KEY && (process.env.HDWALLET_MNEMONIC || process.env.
   }
 
   networks.mainnet = {
-    url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+    url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
     accounts
   }
 } else {

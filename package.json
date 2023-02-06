@@ -8,7 +8,7 @@
     "test": "hardhat test",
     "coverage": "hardhat coverage",
     "size-contracts": "hardhat size-contracts",
-    "deploy": "hardhat deploy"
+    "deploy": "hardhat deploy --network"
   },
   "author": "",
   "license": "ISC",
