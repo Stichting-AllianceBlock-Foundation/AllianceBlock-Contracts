@@ -19,3 +19,7 @@ export const forking = {
 }
 
 export const INFURA_API_KEY = process.env.INFURA_API_KEY || ''
+
+export const TOKEN_NAME = 'AllianceBlock Nexera Token';
+
+export const TOKEN_SYMBOL = 'NXRA';

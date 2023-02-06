@@ -1,6 +1,7 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import { DeployFunction } from 'hardhat-deploy/types';
 import { verifyContract} from '../utils/verifyContract';
+import { TOKEN_NAME, TOKEN_SYMBOL} from '../utils/constants';
 import { ethers } from 'ethers';
 import { SALT } from '../utils/constants';
 const version = 'v2.0.0';
@@ -33,7 +34,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         execute: {
           init: {
             methodName: 'init',
-            args: ["AllianceBlock Nexera Token", "NXRA", admin, admin],
+            args: [TOKEN_NAME, TOKEN_SYMBOL, admin, admin],
           },
         },
       },
