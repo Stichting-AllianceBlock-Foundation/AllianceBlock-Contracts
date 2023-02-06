@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/presets/ERC20PresetMinterPauserUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20SnapshotUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-ERC20PermitUpgradeable.sol";
 
 
 error TokenTransferWhilePaused();
@@ -15,6 +15,8 @@ error BatchMintNotSameLength(uint256 recipientsLength, uint256 valuesLength);
 contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20SnapshotUpgradeable, ERC20PermitUpgradeable {
     uint256 private constant VERSION = 1;
 
+    event BatchMint(address indexed sender, uint256 recipientsLength, uint256 totalValue);
+
     // "AllianceBlock Token", "ALBT"
      function init(
         string memory name,
@@ -24,7 +26,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
     ) public initializer {
         __ERC20_init_unchained(name, symbol);
         __ERC20Snapshot_init_unchained();
-        __ERC20Permit_init_unchained();
+        __ERC20Permit_init(name);
         __Pausable_init_unchained();
         // We don't use __ERC20PresetMinterPauser_init_unchained to avoid giving permisions to _msgSender
         _setupRole(DEFAULT_ADMIN_ROLE, admin);
@@ -39,7 +41,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
         address from,
         address to,
         uint256 amount
-    ) internal virtual override(ERC20PresetMinterPauserUpgradeable, ERC20SnapshotUpgradeable) {
+    ) internal virtual override(ERC20PresetMinterPauserUpgradeable, ERC20SnapshotUpgradeable, ERC20Upgradeable) {
         ERC20SnapshotUpgradeable._beforeTokenTransfer(from, to, amount);
         if (paused()) {
             revert TokenTransferWhilePaused();
@@ -99,17 +101,17 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
     /**
      * @dev Mints multiple values for multiple receivers
      */
-    function batchMint(address[] memory recipients, uint256[] memory values) public view returns(bool) {
+    function batchMint(address[] memory recipients, uint256[] memory values) public returns(bool) {
         if (!hasRole(MINTER_ROLE, _msgSender())) {
             revert BatchMintInvalidRole();
         }
-        uint256 recipientLength = recipients.length;
-        if (recipientLength != values.length) {
-            revert BatchMintNotSameLength(recipientLength, values.length);
+        uint256 recipientsLength = recipients.length;
+        if (recipientsLength != values.length) {
+            revert BatchMintNotSameLength(recipientsLength, values.length);
         }
 
         uint256 totalValue = 0;
-        for(uint256 i = 0; i < recipientLength; i++) {
+        for(uint256 i = 0; i < recipientsLength; i++) {
             _mint(recipients[i], values[i]);
              unchecked {
                 // Overflow not possible: totalValue + amount is at most totalSupply + amount, which is checked above.
@@ -117,7 +119,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
             }
         }
 
-        emit BatchMint(_msgSender(), recipientLength, totalValue);
+        emit BatchMint(_msgSender(), recipientsLength, totalValue);
         return true;
     }
 
