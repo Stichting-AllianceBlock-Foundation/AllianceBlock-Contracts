@@ -33,7 +33,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         execute: {
           init: {
             methodName: 'init',
-            args: ["AllianceBlock Token", "Token", admin, admin],
+            args: ["AllianceBlock Nexera Token", "NXRA", admin, admin],
           },
         },
       },

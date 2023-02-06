@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity >=0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/presets/ERC20PresetMinterPauserUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20SnapshotUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-ERC20PermitUpgradeable.sol";
-
 
 error TokenTransferWhilePaused();
 error TokenTransferToThisContract();
@@ -18,12 +17,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
     event BatchMint(address indexed sender, uint256 recipientsLength, uint256 totalValue);
 
     // "AllianceBlock Token", "ALBT"
-     function init(
-        string memory name,
-        string memory symbol,
-        address admin,
-        address minter
-    ) public initializer {
+    function init(string memory name, string memory symbol, address admin, address minter) public initializer {
         __ERC20_init_unchained(name, symbol);
         __ERC20Snapshot_init_unchained();
         __ERC20Permit_init(name);
@@ -37,7 +31,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
 
     // Update balance and/or total supply snapshots before the values are modified. This is implemented
     // in the _beforeTokenTransfer hook, which is executed for _mint, _burn, and _transfer operations.
-     function _beforeTokenTransfer(
+    function _beforeTokenTransfer(
         address from,
         address to,
         uint256 amount
@@ -47,7 +41,6 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
             revert TokenTransferWhilePaused();
         }
     }
-
 
     // Avoid direct transfers to this contract
     function _transfer(address from, address to, uint256 amount) internal override {
@@ -101,7 +94,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
     /**
      * @dev Mints multiple values for multiple receivers
      */
-    function batchMint(address[] memory recipients, uint256[] memory values) public returns(bool) {
+    function batchMint(address[] memory recipients, uint256[] memory values) public returns (bool) {
         if (!hasRole(MINTER_ROLE, _msgSender())) {
             revert BatchMintInvalidRole();
         }
@@ -111,9 +104,9 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
         }
 
         uint256 totalValue = 0;
-        for(uint256 i = 0; i < recipientsLength; i++) {
+        for (uint256 i = 0; i < recipientsLength; i++) {
             _mint(recipients[i], values[i]);
-             unchecked {
+            unchecked {
                 // Overflow not possible: totalValue + amount is at most totalSupply + amount, which is checked above.
                 totalValue += values[i];
             }
@@ -122,6 +115,4 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
         emit BatchMint(_msgSender(), recipientsLength, totalValue);
         return true;
     }
-
-
 }

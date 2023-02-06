@@ -71,6 +71,15 @@ if (INFURA_API_KEY && accounts) {
     maxFeePerGas: 51500000000
   }
 
+  networks.sepolia = {
+    url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,
+    accounts,
+    gas: 2100000,
+    gasPrice: 50000000000,
+    maxPriorityFeePerGas: 2000000000,
+    maxFeePerGas: 51500000000
+  }
+
   networks.mainnet = {
     url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
     accounts
