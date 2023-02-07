@@ -5,18 +5,11 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/presets/ERC20PresetMinte
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20SnapshotUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-ERC20PermitUpgradeable.sol";
 
-error TokenTransferWhilePaused();
-error TokenTransferToThisContract();
-error SnapshotInvalidRole();
-error BatchMintInvalidRole();
-error BatchMintNotSameLength(uint256 recipientsLength, uint256 valuesLength);
-
 contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20SnapshotUpgradeable, ERC20PermitUpgradeable {
     uint256 private constant VERSION = 1;
 
     event BatchMint(address indexed sender, uint256 recipientsLength, uint256 totalValue);
 
-    // "AllianceBlock Token", "ALBT"
     function init(string memory name, string memory symbol, address admin, address minter) public initializer {
         __ERC20_init_unchained(name, symbol);
         __ERC20Snapshot_init_unchained();
@@ -37,16 +30,12 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
         uint256 amount
     ) internal virtual override(ERC20PresetMinterPauserUpgradeable, ERC20SnapshotUpgradeable, ERC20Upgradeable) {
         ERC20SnapshotUpgradeable._beforeTokenTransfer(from, to, amount);
-        if (paused()) {
-            revert TokenTransferWhilePaused();
-        }
+        require(!paused(), "NXRA: Token transfer while paused");
     }
 
     // Avoid direct transfers to this contract
     function _transfer(address from, address to, uint256 amount) internal override {
-        if (to == address(this)) {
-            revert TokenTransferToThisContract();
-        }
+        require(to != address(this), "NXRA: Token transfer to this contract");
         super._transfer(from, to, amount);
     }
 
@@ -66,9 +55,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
      * set of accounts, for example using {AccessControl}, or it may be open to the public.
      */
     function snapshot() public returns (uint256) {
-        if (!hasRole(DEFAULT_ADMIN_ROLE, _msgSender())) {
-            revert SnapshotInvalidRole();
-        }
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "NXRA: Snapshot invalid role");
         return _snapshot();
     }
 
@@ -95,13 +82,10 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
      * @dev Mints multiple values for multiple receivers
      */
     function batchMint(address[] memory recipients, uint256[] memory values) public returns (bool) {
-        if (!hasRole(MINTER_ROLE, _msgSender())) {
-            revert BatchMintInvalidRole();
-        }
+        require(hasRole(MINTER_ROLE, _msgSender()), "NXRA: Batch mint invalid role");
+
         uint256 recipientsLength = recipients.length;
-        if (recipientsLength != values.length) {
-            revert BatchMintNotSameLength(recipientsLength, values.length);
-        }
+        require(recipientsLength == values.length, "NXRA: Batch mint not same legth");
 
         uint256 totalValue = 0;
         for (uint256 i = 0; i < recipientsLength; i++) {

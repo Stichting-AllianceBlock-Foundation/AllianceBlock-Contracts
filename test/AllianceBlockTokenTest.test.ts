@@ -3,8 +3,6 @@ import { BigNumber } from 'ethers';
 import { ethers, deployments } from 'hardhat';
 import { AllianceBlockToken } from '../typechain-types';
 import { TOKEN_NAME, TOKEN_SYMBOL } from '../utils/constants';
-import { crypto } from 'crypto';
-
 
 describe('AllianceBlockToken', function () {
   let deployer: any, admin: any, recipient: any, anotherAccount: any;
@@ -32,11 +30,29 @@ describe('AllianceBlockToken', function () {
     assert.strictEqual(symbol, TOKEN_SYMBOL, "Incorrect Token symbol");
   });
 
+  it("it is correct contract version", async () => {
+    const version = await token.contractVersion();
+    assert.strictEqual(version, BigNumber.from(1), "Incorrect contract version");
+  });
+
+
   it("deployer can't mint", async () => {
     const tokens = BigNumber.from(100);
     await expect(token.connect(deployer).mint(recipient.address, tokens))
       .to.be.revertedWith('ERC20PresetMinterPauser: must have minter role to mint');
 
+  });
+
+  it("can't initizalize 2 times", async () => {
+    await expect(token.init(TOKEN_NAME, TOKEN_SYMBOL, deployer.address, deployer.address))
+      .to.be.revertedWith('Initializable: contract is already initialized');;
+  });
+
+  it("can't transfer to contract address", async () => {
+    const tokens = BigNumber.from(100);
+    await token.mint(admin.address, tokens);
+    await expect(token.transfer(token.address, tokens))
+      .to.be.revertedWith('NXRA: Token transfer to this contract');;
   });
 
   it("increments recipient balance", async () => {
@@ -76,12 +92,52 @@ describe('AllianceBlockToken', function () {
       .to.be.revertedWith('ERC20Pausable: token transfer while paused');
   });
 
-  it("remove minter role as owner", async () => {
+
+  it("remove minter role", async () => {
     const tokens = 100;
     const role = await token.MINTER_ROLE();
     await token.revokeRole(role, admin.address);
     await expect(token.mint(admin.address, tokens))
       .to.be.revertedWith('ERC20PresetMinterPauser: must have minter role to mint');
+  });
+
+  describe('Snapshot', function () {
+    it("should create snapshot", async () => {
+      const previousSnapshotId = await token.getCurrentSnapshotId();
+      await token.snapshot();
+      const currentSnapshotId = await token.getCurrentSnapshotId();
+      expect(currentSnapshotId).to.be.eq(previousSnapshotId.add(1));
+    });
+
+    it("should obtain snapshot values", async () => {
+      const tokens = BigNumber.from(100);
+      await token.mint(recipient.address, tokens);
+      await token.snapshot();
+      const currentSnapshotId = await token.getCurrentSnapshotId();
+      await token.mint(recipient.address, tokens);
+      const currentBalance = await token.balanceOf(recipient.address);
+      expect(currentBalance).to.be.eq(tokens.mul(2));
+      const currentTotalSupply = await token.totalSupply();
+      expect(currentTotalSupply).to.be.eq(tokens.mul(2));
+      const snapshotBalance = await token.balanceOfAt(recipient.address, currentSnapshotId);
+      expect(snapshotBalance).to.be.eq(tokens);
+      const snapshotTotalSupply = await token.totalSupplyAt(currentSnapshotId);
+      expect(snapshotTotalSupply).to.be.eq(tokens);
+    });
+
+    it("should create snapshot when paused", async () => {
+      const tokens = 100;
+      const previousSnapshotId = await token.getCurrentSnapshotId();
+      await token.mint(recipient.address, tokens);
+      await token.pause();
+      const currentSnapshotId = await token.getCurrentSnapshotId();
+      expect(currentSnapshotId).to.be.eq(previousSnapshotId.add(1));
+    });
+
+    it("shouldn't create snapshot if not admin", async () => {
+      await expect(token.connect(deployer).snapshot()).to.be.revertedWith('NXRA: Snapshot invalid role');
+    });
+
   });
 
   describe('BatchMint', function () {
@@ -117,6 +173,21 @@ describe('AllianceBlockToken', function () {
       }
     });
 
+    it("Can't batchMint without role", async () => {
+      const tokens: BigNumber[] = [BigNumber.from(1)];
+      const recipients: string[] = [admin.address];
+      const role = await token.MINTER_ROLE();
+      await token.revokeRole(role, admin.address);
+      await expect(token.batchMint(recipients, tokens))
+        .to.be.revertedWith('NXRA: Batch mint invalid role');
+    });
+
+    it("Can't batchMint with diferent length arrays", async () => {
+      const tokens: BigNumber[] = [BigNumber.from(1)];
+      const recipients: string[] = [deployer.address, admin.address];
+      await expect(token.batchMint(recipients, tokens))
+        .to.be.revertedWith('NXRA: Batch mint not same legth');
+    });
 
   });
 

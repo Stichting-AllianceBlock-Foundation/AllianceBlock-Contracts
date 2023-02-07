@@ -46,10 +46,14 @@ const config = {
       avalanche: process.env.AVALANCHE_API_KEY || "",
       avalancheFujiTestnet: process.env.AVALANCHE_API_KEY || "",
       optimisticEthereum: process.env.OPTIMISM_API_KEY || "",
+      optimisticGoerli: process.env.OPTIMISM_API_KEY || "",
       polygon: process.env.POLYGONSCAN_API_KEY || "",
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
       arbitrumOne: process.env.ARBISCAN_API_KEY || "",
+      arbitrumGoerli: process.env.ARBISCAN_API_KEY || "",
       bsc: process.env.BSCSCAN_API_KEY || "",
+      bscTestnet: process.env.BSCSCAN_API_KEY || "",
+      gnosis: process.env.GNOSIS_API_KEY || "",
     }
   },
   mocha: {
@@ -58,7 +62,7 @@ const config = {
   abiExporter: {
     path: './abis',
     runOnCompile: true,
-    only: ['AllianceBlockToken', 'BatchTransfer', 'Vesting'],
+    only: ['AllianceBlockToken'],
     clear: true,
     flat: true,
   }

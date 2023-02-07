@@ -1,41 +1,5 @@
 [
   {
-    "inputs": [],
-    "name": "BatchMintInvalidRole",
-    "type": "error"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "recipientsLength",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "valuesLength",
-        "type": "uint256"
-      }
-    ],
-    "name": "BatchMintNotSameLength",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "SnapshotInvalidRole",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TokenTransferToThisContract",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TokenTransferWhilePaused",
-    "type": "error"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {

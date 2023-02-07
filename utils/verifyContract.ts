@@ -6,14 +6,26 @@ const NETWORKS_SUPPORTED = [
   'mainnet',
   'goerli',
   'sepolia',
+  'gnosis',
   'bsc',
   'bscTestnet',
   'avalanche',
   'avalancheFujiTestnet',
   'optimisticEthereum',
+  'optimisticGoerli',
   'polygon',
   'polygonMumbai',
   'arbitrumOne',
+  'arbitrumGoerli',
+  'aurora',
+  'auroraTestnet',
+  'moonbeam',
+  'moonriver',
+  'moonbaseAlpha',
+  'opera',
+  'ftmTestnet',
+  'harmony',
+  'harmonyTest'
 ];
 
 export type TaskArgs = {
