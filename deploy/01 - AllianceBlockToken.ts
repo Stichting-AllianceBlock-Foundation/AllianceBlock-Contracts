@@ -3,7 +3,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { verifyContract } from "../utils/verifyContract";
 import { TOKEN_NAME, TOKEN_SYMBOL } from "../utils/constants";
 import { ethers } from "ethers";
-import { SALT } from "../utils/constants";
+import { SALT, MAX_TOTAL_SUPPLY } from "../utils/constants";
 const version = "v2.0.0";
 const contractName = "AllianceBlockToken";
 
@@ -34,7 +34,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         execute: {
           init: {
             methodName: "init",
-            args: [TOKEN_NAME, TOKEN_SYMBOL, admin, admin],
+            args: [TOKEN_NAME, TOKEN_SYMBOL, admin, admin, MAX_TOTAL_SUPPLY],
           },
         },
       },

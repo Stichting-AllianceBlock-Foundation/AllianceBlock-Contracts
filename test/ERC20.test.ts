@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
 import { AllianceBlockToken } from "../typechain-types";
+import { MAX_TOTAL_SUPPLY } from "../utils/constants";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const MAX_UINT256 = ethers.constants.MaxUint256;
@@ -11,6 +12,7 @@ describe("ERC20", () => {
   const name = "My Token";
   const symbol = "MTKN";
   const initialSupply = BigNumber.from(100);
+  const maxTotalSupply = MAX_TOTAL_SUPPLY;
   let Token: any;
   let token: AllianceBlockToken;
 
@@ -21,7 +23,7 @@ describe("ERC20", () => {
 
   beforeEach(async () => {
     token = await Token.deploy();
-    await token.init(name, symbol, initialHolder.address, initialHolder.address);
+    await token.init(name, symbol, initialHolder.address, initialHolder.address, maxTotalSupply);
     await token.mint(initialHolder.address, initialSupply);
   });
 
@@ -35,6 +37,10 @@ describe("ERC20", () => {
 
   it("has 18 decimals", async function () {
     expect(await token.decimals()).to.be.equal(BigNumber.from(18));
+  });
+
+  it("has correct cap", async function () {
+    expect(await token.cap()).to.be.equal(MAX_TOTAL_SUPPLY);
   });
 
   describe("decrease allowance", () => {

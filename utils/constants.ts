@@ -28,3 +28,4 @@ export const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "";
 export const ARBISCAN_API_KEY = process.env.ARBISCAN_API_KEY || "";
 export const BSCSCAN_API_KEY = process.env.BSCSCAN_API_KEY || "";
 export const GNOSIS_API_KEY = process.env.GNOSIS_API_KEY || "";
+export const MAX_TOTAL_SUPPLY = "850000000000000000000000000"; // cap is 850M

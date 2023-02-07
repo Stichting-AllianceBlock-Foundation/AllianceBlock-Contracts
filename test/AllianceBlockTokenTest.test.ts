@@ -2,7 +2,7 @@ import { assert, expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers, deployments } from "hardhat";
 import { AllianceBlockToken } from "../typechain-types";
-import { TOKEN_NAME, TOKEN_SYMBOL } from "../utils/constants";
+import { TOKEN_NAME, TOKEN_SYMBOL, MAX_TOTAL_SUPPLY } from "../utils/constants";
 
 describe("AllianceBlockToken", function () {
   let deployer: any, admin: any, recipient: any, anotherAccount: any;
@@ -43,7 +43,7 @@ describe("AllianceBlockToken", function () {
   });
 
   it("can't initizalize 2 times", async () => {
-    await expect(token.init(TOKEN_NAME, TOKEN_SYMBOL, deployer.address, deployer.address)).to.be.revertedWith(
+    await expect(token.init(TOKEN_NAME, TOKEN_SYMBOL, deployer.address, deployer.address, MAX_TOTAL_SUPPLY)).to.be.revertedWith(
       "Initializable: contract is already initialized",
     );
   });

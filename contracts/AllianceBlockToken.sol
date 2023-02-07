@@ -8,18 +8,27 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/draft-ERC20Pe
 contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20SnapshotUpgradeable, ERC20PermitUpgradeable {
     uint256 private constant VERSION = 1;
 
+    // The cap or max total supply of the token.
+    uint256 private _cap;
+
     event BatchMint(address indexed sender, uint256 recipientsLength, uint256 totalValue);
 
-    function init(string memory name, string memory symbol, address admin, address minter) public initializer {
+    function init(string memory name, string memory symbol, address admin, address minter, uint256 cap_) public initializer {
         __ERC20_init_unchained(name, symbol);
         __ERC20Snapshot_init_unchained();
         __ERC20Permit_init(name);
         __Pausable_init_unchained();
+        __AllianceBlockToken_init_unchained(cap_);
         // We don't use __ERC20PresetMinterPauser_init_unchained to avoid giving permisions to _msgSender
         _setupRole(DEFAULT_ADMIN_ROLE, admin);
         _setupRole(MINTER_ROLE, admin);
         _setupRole(PAUSER_ROLE, admin);
         _setupRole(MINTER_ROLE, minter);
+    }
+    
+    function __AllianceBlockToken_init_unchained(uint256 cap_) internal onlyInitializing {
+        require(cap_ > 0, "NXRA: cap is 0");
+        _cap = cap_;
     }
 
     // Update balance and/or total supply snapshots before the values are modified. This is implemented
@@ -56,6 +65,13 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
     function snapshot() public returns (uint256) {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "NXRA: Snapshot invalid role");
         return _snapshot();
+    }
+
+    /**
+     * @dev Returns the cap on the token's total supply.
+     */
+    function cap() external view virtual returns (uint256) {
+        return _cap;
     }
 
     /**
@@ -97,6 +113,15 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
 
         emit BatchMint(_msgSender(), recipientsLength, totalValue);
         return true;
+    }
+    
+    /**
+     * @dev See {ERC20-_mint}.
+     * @dev Checks if cap is reached and calls normal _mint.
+     */
+    function _mint(address account, uint256 amount) internal override {
+        require(ERC20Upgradeable.totalSupply() + amount <= _cap, "NXRA: cap exceeded");
+        super._mint(account, amount);
     }
 
 }

@@ -401,6 +401,19 @@
   },
   {
     "inputs": [],
+    "name": "cap",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "contractVersion",
     "outputs": [
       {
@@ -611,6 +624,11 @@
         "internalType": "address",
         "name": "minter",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cap_",
+        "type": "uint256"
       }
     ],
     "name": "init",
