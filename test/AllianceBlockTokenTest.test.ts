@@ -54,6 +54,11 @@ describe("AllianceBlockToken", function () {
     await expect(token.transfer(token.address, tokens)).to.be.revertedWith("NXRA: Token transfer to this contract");
   });
 
+  it("can't mint more than cap", async () => {
+    const amountToMint = BigNumber.from(ethers.utils.parseEther('850000001'));
+    await expect(token.mint(admin.address, amountToMint)).to.be.revertedWith("NXRA: cap exceeded");
+  });
+
   it("increments recipient balance", async () => {
     const tokens = BigNumber.from(100);
     await token.mint(recipient.address, tokens);
