@@ -9,9 +9,20 @@ import "hardhat-abi-exporter";
 import "hardhat-docgen";
 import "hardhat-contract-sizer";
 
+import {
+  ARBISCAN_API_KEY,
+  AVALANCHE_API_KEY,
+  BSCSCAN_API_KEY,
+  ETHERSCAN_API_KEY,
+  GNOSIS_API_KEY,
+  MULTISIG_ADDRESS,
+  OPTIMISM_API_KEY,
+  POLYGONSCAN_API_KEY
+} from "./utils/constants";
+
 dotenv.config();
 
-const multisig = "0xD033fAC764fDB548542fe4c6897562a9114BdBb7"; // Account 1
+const multisig = MULTISIG_ADDRESS; // Account 1
 
 const config = {
   solidity: {
@@ -40,20 +51,20 @@ const config = {
   },
   etherscan: {
     apiKey: {
-      mainnet: process.env.ETHERSCAN_API_KEY || "",
-      goerli: process.env.ETHERSCAN_API_KEY || "",
-      sepolia: process.env.ETHERSCAN_API_KEY || "",
-      avalanche: process.env.AVALANCHE_API_KEY || "",
-      avalancheFujiTestnet: process.env.AVALANCHE_API_KEY || "",
-      optimisticEthereum: process.env.OPTIMISM_API_KEY || "",
-      optimisticGoerli: process.env.OPTIMISM_API_KEY || "",
-      polygon: process.env.POLYGONSCAN_API_KEY || "",
-      polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
-      arbitrumOne: process.env.ARBISCAN_API_KEY || "",
-      arbitrumGoerli: process.env.ARBISCAN_API_KEY || "",
-      bsc: process.env.BSCSCAN_API_KEY || "",
-      bscTestnet: process.env.BSCSCAN_API_KEY || "",
-      gnosis: process.env.GNOSIS_API_KEY || "",
+      mainnet: ETHERSCAN_API_KEY,
+      goerli: ETHERSCAN_API_KEY,
+      sepolia: ETHERSCAN_API_KEY,
+      avalanche: AVALANCHE_API_KEY,
+      avalancheFujiTestnet: AVALANCHE_API_KEY,
+      optimisticEthereum: OPTIMISM_API_KEY,
+      optimisticGoerli: OPTIMISM_API_KEY,
+      polygon: POLYGONSCAN_API_KEY,
+      polygonMumbai: POLYGONSCAN_API_KEY,
+      arbitrumOne: ARBISCAN_API_KEY,
+      arbitrumGoerli: ARBISCAN_API_KEY,
+      bsc: BSCSCAN_API_KEY,
+      bscTestnet: BSCSCAN_API_KEY,
+      gnosis: GNOSIS_API_KEY,
     },
   },
   mocha: {
