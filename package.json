@@ -6,6 +6,9 @@
   "scripts": {
     "compile": "hardhat --show-stack-traces compile",
     "lint:sol": "solhint --max-warnings 0 \"contracts/**/*.sol\"",
+    "prettier": "prettier \"**/*.{ts,js,sol}\"",
+    "prettier:check": "yarn prettier --check",
+    "prettier:fix": "yarn prettier --write",
     "test": "hardhat test",
     "coverage": "hardhat coverage",
     "size": "hardhat size-contracts",

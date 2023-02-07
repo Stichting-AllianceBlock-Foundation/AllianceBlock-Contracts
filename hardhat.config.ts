@@ -1,33 +1,33 @@
-import * as dotenv from 'dotenv';
-import networks from './hardhat.networks'
+import * as dotenv from "dotenv";
+import networks from "./hardhat.networks";
 
-import '@nomicfoundation/hardhat-toolbox'
-import '@nomiclabs/hardhat-ethers';
-import 'hardhat-deploy'
-import 'hardhat-deploy-ethers'
-import 'hardhat-abi-exporter'
-import 'hardhat-docgen'
-import 'hardhat-contract-sizer'
+import "@nomicfoundation/hardhat-toolbox";
+import "@nomiclabs/hardhat-ethers";
+import "hardhat-deploy";
+import "hardhat-deploy-ethers";
+import "hardhat-abi-exporter";
+import "hardhat-docgen";
+import "hardhat-contract-sizer";
 
 dotenv.config();
 
-const multisig = '0xD033fAC764fDB548542fe4c6897562a9114BdBb7' // Account 1
+const multisig = "0xD033fAC764fDB548542fe4c6897562a9114BdBb7"; // Account 1
 
 const config = {
   solidity: {
-    version: '0.8.17',
+    version: "0.8.17",
     settings: {
       optimizer: {
         enabled: true,
-        runs: 6000
-      }
-    }
+        runs: 6000,
+      },
+    },
   },
   networks,
   gasReporter: {
-    currency: 'USD',
+    currency: "USD",
     gasPrice: 30,
-    enabled: true
+    enabled: true,
   },
   namedAccounts: {
     deployer: {
@@ -35,7 +35,7 @@ const config = {
     },
     admin: {
       default: multisig,
-      31337: 1
+      31337: 1,
     },
   },
   etherscan: {
@@ -54,18 +54,18 @@ const config = {
       bsc: process.env.BSCSCAN_API_KEY || "",
       bscTestnet: process.env.BSCSCAN_API_KEY || "",
       gnosis: process.env.GNOSIS_API_KEY || "",
-    }
+    },
   },
   mocha: {
-    timeout: 30000
+    timeout: 30000,
   },
   abiExporter: {
-    path: './abis',
+    path: "./abis",
     runOnCompile: true,
-    only: ['AllianceBlockToken'],
+    only: ["AllianceBlockToken"],
     clear: true,
     flat: true,
-  }
-}
+  },
+};
 
-export default config
+export default config;

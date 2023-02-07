@@ -1,11 +1,11 @@
-import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { DeployFunction } from 'hardhat-deploy/types';
-import { verifyContract} from '../utils/verifyContract';
-import { TOKEN_NAME, TOKEN_SYMBOL} from '../utils/constants';
-import { ethers } from 'ethers';
-import { SALT } from '../utils/constants';
-const version = 'v2.0.0';
-const contractName = 'AllianceBlockToken';
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DeployFunction } from "hardhat-deploy/types";
+import { verifyContract } from "../utils/verifyContract";
+import { TOKEN_NAME, TOKEN_SYMBOL } from "../utils/constants";
+import { ethers } from "ethers";
+import { SALT } from "../utils/constants";
+const version = "v2.0.0";
+const contractName = "AllianceBlockToken";
 
 const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
   async function main() {
@@ -17,11 +17,11 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
     // await hre.run('compile');
 
     console.log(`Deploying ${contractName} ${version}`);
-    const {deployments, getNamedAccounts, network} = hre;
+    const { deployments, getNamedAccounts, network } = hre;
 
-    const {deploy} = deployments;
+    const { deploy } = deployments;
 
-    const {deployer, admin} = await getNamedAccounts();
+    const { deployer, admin } = await getNamedAccounts();
 
     console.log(`Use contract ${contractName}`);
 
@@ -30,10 +30,10 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
       deterministicDeployment: ethers.utils.formatBytes32String(SALT),
       proxy: {
         owner: admin,
-        proxyContract: 'OptimizedTransparentProxy',
+        proxyContract: "OptimizedTransparentProxy",
         execute: {
           init: {
-            methodName: 'init',
+            methodName: "init",
             args: [TOKEN_NAME, TOKEN_SYMBOL, admin, admin],
           },
         },
@@ -58,5 +58,5 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
 const id = contractName + version;
 
 export default func;
-func.tags = [contractName, version, 'upgrade'];
+func.tags = [contractName, version, "upgrade"];
 func.id = id;

@@ -1,10 +1,10 @@
-import { assert, expect } from 'chai';
-import { BigNumber } from 'ethers';
-import { ethers, deployments } from 'hardhat';
-import { AllianceBlockToken } from '../typechain-types';
-import { TOKEN_NAME, TOKEN_SYMBOL } from '../utils/constants';
+import { assert, expect } from "chai";
+import { BigNumber } from "ethers";
+import { ethers, deployments } from "hardhat";
+import { AllianceBlockToken } from "../typechain-types";
+import { TOKEN_NAME, TOKEN_SYMBOL } from "../utils/constants";
 
-describe('AllianceBlockToken', function () {
+describe("AllianceBlockToken", function () {
   let deployer: any, admin: any, recipient: any, anotherAccount: any;
   let token: AllianceBlockToken;
 
@@ -13,7 +13,7 @@ describe('AllianceBlockToken', function () {
   });
 
   beforeEach(async function () {
-    const contractName = 'AllianceBlockToken';
+    const contractName = "AllianceBlockToken";
     await deployments.fixture([contractName]);
     const deployedContract = await deployments.get(contractName); // Token is available because the fixture was executed
     token = await ethers.getContractAt(contractName, deployedContract.address);
@@ -35,31 +35,30 @@ describe('AllianceBlockToken', function () {
     assert.strictEqual(version, BigNumber.from(1), "Incorrect contract version");
   });
 
-
   it("deployer can't mint", async () => {
     const tokens = BigNumber.from(100);
-    await expect(token.connect(deployer).mint(recipient.address, tokens))
-      .to.be.revertedWith('ERC20PresetMinterPauser: must have minter role to mint');
-
+    await expect(token.connect(deployer).mint(recipient.address, tokens)).to.be.revertedWith(
+      "ERC20PresetMinterPauser: must have minter role to mint",
+    );
   });
 
   it("can't initizalize 2 times", async () => {
-    await expect(token.init(TOKEN_NAME, TOKEN_SYMBOL, deployer.address, deployer.address))
-      .to.be.revertedWith('Initializable: contract is already initialized');;
+    await expect(token.init(TOKEN_NAME, TOKEN_SYMBOL, deployer.address, deployer.address)).to.be.revertedWith(
+      "Initializable: contract is already initialized",
+    );
   });
 
   it("can't transfer to contract address", async () => {
     const tokens = BigNumber.from(100);
     await token.mint(admin.address, tokens);
-    await expect(token.transfer(token.address, tokens))
-      .to.be.revertedWith('NXRA: Token transfer to this contract');;
+    await expect(token.transfer(token.address, tokens)).to.be.revertedWith("NXRA: Token transfer to this contract");
   });
 
   it("increments recipient balance", async () => {
     const tokens = BigNumber.from(100);
     await token.mint(recipient.address, tokens);
     const balance = await token.balanceOf(recipient.address);
-    assert(balance.eq(tokens), 'Not enough tokens');
+    assert(balance.eq(tokens), "Not enough tokens");
   });
 
   it("decrement recipient balance", async () => {
@@ -68,7 +67,7 @@ describe('AllianceBlockToken', function () {
     await token.mint(admin.address, tokens);
     await token.burn(burnedTokens);
     const balance = await token.balanceOf(admin.address);
-    assert(balance.eq(tokens.sub(burnedTokens)), 'Not enough tokens');
+    assert(balance.eq(tokens.sub(burnedTokens)), "Not enough tokens");
   });
 
   it("is possible to send tokens between accounts", async () => {
@@ -77,31 +76,33 @@ describe('AllianceBlockToken', function () {
     await token.mint(recipient.address, tokens);
     await token.connect(recipient).transfer(admin.address, sendtokens);
     const balance = await token.balanceOf(admin.address);
-    assert(balance.eq(sendtokens), 'Not enough tokens');
+    assert(balance.eq(sendtokens), "Not enough tokens");
   });
 
   it("can not transfer or burn while paused", async () => {
     const tokens = 100;
     await token.mint(recipient.address, tokens);
     await token.pause();
-    await expect(token.transfer(recipient.address, tokens))
-      .to.be.revertedWith('ERC20Pausable: token transfer while paused');
-    await expect(token.burn(tokens)).to.be.revertedWith('ERC20Pausable: token transfer while paused');
+    await expect(token.transfer(recipient.address, tokens)).to.be.revertedWith(
+      "ERC20Pausable: token transfer while paused",
+    );
+    await expect(token.burn(tokens)).to.be.revertedWith("ERC20Pausable: token transfer while paused");
     await token.approve(recipient.address, tokens);
-    await expect(token.connect(recipient).transferFrom(admin.address, recipient.address, tokens))
-      .to.be.revertedWith('ERC20Pausable: token transfer while paused');
+    await expect(token.connect(recipient).transferFrom(admin.address, recipient.address, tokens)).to.be.revertedWith(
+      "ERC20Pausable: token transfer while paused",
+    );
   });
-
 
   it("remove minter role", async () => {
     const tokens = 100;
     const role = await token.MINTER_ROLE();
     await token.revokeRole(role, admin.address);
-    await expect(token.mint(admin.address, tokens))
-      .to.be.revertedWith('ERC20PresetMinterPauser: must have minter role to mint');
+    await expect(token.mint(admin.address, tokens)).to.be.revertedWith(
+      "ERC20PresetMinterPauser: must have minter role to mint",
+    );
   });
 
-  describe('Snapshot', function () {
+  describe("Snapshot", function () {
     it("should create snapshot", async () => {
       const previousSnapshotId = await token.getCurrentSnapshotId();
       await token.snapshot();
@@ -135,25 +136,24 @@ describe('AllianceBlockToken', function () {
     });
 
     it("shouldn't create snapshot if not admin", async () => {
-      await expect(token.connect(deployer).snapshot()).to.be.revertedWith('NXRA: Snapshot invalid role');
+      await expect(token.connect(deployer).snapshot()).to.be.revertedWith("NXRA: Snapshot invalid role");
     });
-
   });
 
-  describe('BatchMint', function () {
+  describe("BatchMint", function () {
     it("is possible to mint tokens to multiple 10 accounts", async () => {
       const tokens: BigNumber[] = [];
       const recipients: string[] = [];
       const numberOfAccounts = 10;
       for (let i = 0; i < numberOfAccounts; i++) {
-        const address = Buffer.from(ethers.utils.randomBytes(20)).toString('hex');
+        const address = Buffer.from(ethers.utils.randomBytes(20)).toString("hex");
         recipients.push(address);
         tokens.push(BigNumber.from(Math.floor(Math.random() * 100)));
       }
       await token.batchMint(recipients, tokens);
       for (let i = 0; i < numberOfAccounts; i++) {
         const balance = await token.balanceOf(recipients[i]);
-        assert(balance.eq(tokens[i]), 'Incorrect balance after batch mint');
+        assert(balance.eq(tokens[i]), "Incorrect balance after batch mint");
       }
     });
 
@@ -162,14 +162,14 @@ describe('AllianceBlockToken', function () {
       const recipients: string[] = [];
       const numberOfAccounts = 500;
       for (let i = 0; i < numberOfAccounts; i++) {
-        const address = Buffer.from(ethers.utils.randomBytes(20)).toString('hex');
+        const address = Buffer.from(ethers.utils.randomBytes(20)).toString("hex");
         recipients.push(address);
         tokens.push(BigNumber.from(Math.floor(Math.random() * 100)));
       }
       await token.batchMint(recipients, tokens);
       for (let i = 0; i < numberOfAccounts; i++) {
         const balance = await token.balanceOf(recipients[i]);
-        assert(balance.eq(tokens[i]), 'Incorrect balance after batch mint');
+        assert(balance.eq(tokens[i]), "Incorrect balance after batch mint");
       }
     });
 
@@ -178,17 +178,13 @@ describe('AllianceBlockToken', function () {
       const recipients: string[] = [admin.address];
       const role = await token.MINTER_ROLE();
       await token.revokeRole(role, admin.address);
-      await expect(token.batchMint(recipients, tokens))
-        .to.be.revertedWith('NXRA: Batch mint invalid role');
+      await expect(token.batchMint(recipients, tokens)).to.be.revertedWith("NXRA: Batch mint invalid role");
     });
 
     it("Can't batchMint with diferent length arrays", async () => {
       const tokens: BigNumber[] = [BigNumber.from(1)];
       const recipients: string[] = [deployer.address, admin.address];
-      await expect(token.batchMint(recipients, tokens))
-        .to.be.revertedWith('NXRA: Batch mint not same legth');
+      await expect(token.batchMint(recipients, tokens)).to.be.revertedWith("NXRA: Batch mint not same legth");
     });
-
   });
-
 });

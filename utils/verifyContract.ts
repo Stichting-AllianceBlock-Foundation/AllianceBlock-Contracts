@@ -1,31 +1,31 @@
-import {ethers, run} from 'hardhat';
-import {DeployResult} from 'hardhat-deploy/types';
-import {Network} from 'hardhat/types';
+import { ethers, run } from "hardhat";
+import { DeployResult } from "hardhat-deploy/types";
+import { Network } from "hardhat/types";
 
 const NETWORKS_SUPPORTED = [
-  'mainnet',
-  'goerli',
-  'sepolia',
-  'gnosis',
-  'bsc',
-  'bscTestnet',
-  'avalanche',
-  'avalancheFujiTestnet',
-  'optimisticEthereum',
-  'optimisticGoerli',
-  'polygon',
-  'polygonMumbai',
-  'arbitrumOne',
-  'arbitrumGoerli',
-  'aurora',
-  'auroraTestnet',
-  'moonbeam',
-  'moonriver',
-  'moonbaseAlpha',
-  'opera',
-  'ftmTestnet',
-  'harmony',
-  'harmonyTest'
+  "mainnet",
+  "goerli",
+  "sepolia",
+  "gnosis",
+  "bsc",
+  "bscTestnet",
+  "avalanche",
+  "avalancheFujiTestnet",
+  "optimisticEthereum",
+  "optimisticGoerli",
+  "polygon",
+  "polygonMumbai",
+  "arbitrumOne",
+  "arbitrumGoerli",
+  "aurora",
+  "auroraTestnet",
+  "moonbeam",
+  "moonriver",
+  "moonbaseAlpha",
+  "opera",
+  "ftmTestnet",
+  "harmony",
+  "harmonyTest",
 ];
 
 export type TaskArgs = {
@@ -37,7 +37,7 @@ export const verifyContract = async (
   network: Network,
   deployResult: DeployResult,
   contractName: string,
-  constructorArguments?: string[]
+  constructorArguments?: string[],
 ) => {
   if (
     network.live &&
@@ -47,16 +47,16 @@ export const verifyContract = async (
   ) {
     const blocks = 5;
     const address = deployResult.implementation || deployResult.address;
-    const taskArgs: TaskArgs = {address};
+    const taskArgs: TaskArgs = { address };
     if (constructorArguments) taskArgs.constructorArguments = constructorArguments;
 
     console.log(`Waiting ${blocks} blocks before verifying`);
     await ethers.provider.waitForTransaction(deployResult.transactionHash, blocks);
     try {
       console.log(`Startig Verification of ${contractName} ${address}`);
-      await run('verify:verify', taskArgs);
+      await run("verify:verify", taskArgs);
     } catch (err: any) {
-      if (err.message.includes('Already Verified')) {
+      if (err.message.includes("Already Verified")) {
         return;
       }
       throw err;
