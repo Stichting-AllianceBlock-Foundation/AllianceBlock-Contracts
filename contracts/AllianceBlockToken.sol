@@ -29,8 +29,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
         address to,
         uint256 amount
     ) internal virtual override(ERC20PresetMinterPauserUpgradeable, ERC20SnapshotUpgradeable, ERC20Upgradeable) {
-        ERC20SnapshotUpgradeable._beforeTokenTransfer(from, to, amount);
-        require(!paused(), "NXRA: Token transfer while paused");
+        super._beforeTokenTransfer(from, to, amount);
     }
 
     // Avoid direct transfers to this contract
