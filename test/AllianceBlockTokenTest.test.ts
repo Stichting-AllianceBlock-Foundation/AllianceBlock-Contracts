@@ -102,7 +102,28 @@ describe("AllianceBlockToken", function () {
     );
   });
 
-  describe("Snapshot", function () {
+  describe("Burn", () => {
+    it("burn token amount", async () => {
+      const tokens = BigNumber.from(110);
+      const burnedTokens = BigNumber.from(10);
+      await token.mint(admin.address, tokens);
+      await token.burn(burnedTokens);
+      const balance = await token.balanceOf(admin.address);
+      assert(balance.eq(tokens.sub(burnedTokens)), "Tokens weren't burned");
+    });
+
+    it("burnFrom token amount", async () => {
+      const tokens = BigNumber.from(110);
+      const burnedTokens = BigNumber.from(10);
+      await token.mint(admin.address, tokens);
+      await token.approve(recipient.address, burnedTokens)
+      await token.connect(recipient).burnFrom(admin.address, burnedTokens);
+      const balance = await token.balanceOf(admin.address);
+      assert(balance.eq(tokens.sub(burnedTokens)), "Tokens weren't burned");
+    });
+  });
+
+  describe("Snapshot", () => {
     it("should create snapshot", async () => {
       const previousSnapshotId = await token.getCurrentSnapshotId();
       await token.snapshot();

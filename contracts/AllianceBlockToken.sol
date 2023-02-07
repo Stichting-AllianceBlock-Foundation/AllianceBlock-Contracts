@@ -98,4 +98,5 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
         emit BatchMint(_msgSender(), recipientsLength, totalValue);
         return true;
     }
+
 }
