@@ -13,12 +13,6 @@ export const accounts =
 
 export const SALT = process.env.SALT || "AllianceBlockSalt";
 
-export const forking = {
-  enabled: process.env.FORK_ENABLED || false,
-  url: process.env.ALCHEMY_URL,
-  blockNumber: process.env.FORK_BLOCK_NUMBER,
-};
-
 export const INFURA_API_KEY = process.env.INFURA_API_KEY || "";
 
 export const TOKEN_NAME = "AllianceBlock Nexera Token";

@@ -1,4 +1,4 @@
-import { accounts, forking, INFURA_API_KEY } from "./utils/constants";
+import { accounts, INFURA_API_KEY } from "./utils/constants";
 import * as dotenv from "dotenv";
 
 dotenv.config();
@@ -14,14 +14,6 @@ const networks: any = {
   },
 };
 
-if (forking.enabled) {
-  networks.hardhat = {
-    live: false,
-    chainId: 1,
-    forking,
-    accounts,
-  };
-}
 
 if (accounts) {
   networks.polygon = {
