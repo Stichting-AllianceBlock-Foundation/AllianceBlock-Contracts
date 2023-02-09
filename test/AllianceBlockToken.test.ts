@@ -217,5 +217,11 @@ describe("AllianceBlockToken", function () {
       const recipients: string[] = [deployer.address, admin.address];
       await expect(token.batchMint(recipients, tokens)).to.be.revertedWith("NXRA: Batch mint not same legth");
     });
+
+    it("Can't batchMint to contract address", async () => {
+      const tokens: BigNumber[] = [BigNumber.from(1)];
+      const recipients: string[] = [token.address];
+      await expect(token.batchMint(recipients, tokens)).to.be.revertedWith("NXRA: Token transfer to this contract");
+    });
   });
 });

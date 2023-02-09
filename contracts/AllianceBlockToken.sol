@@ -33,18 +33,14 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
 
     // Update balance and/or total supply snapshots before the values are modified. This is implemented
     // in the _beforeTokenTransfer hook, which is executed for _mint, _burn, and _transfer operations.
+    // Avoid direct token transfers to this contract
     function _beforeTokenTransfer(
         address from,
         address to,
         uint256 amount
     ) internal virtual override(ERC20PresetMinterPauserUpgradeable, ERC20SnapshotUpgradeable, ERC20Upgradeable) {
-        super._beforeTokenTransfer(from, to, amount);
-    }
-
-    // Avoid direct transfers to this contract
-    function _transfer(address from, address to, uint256 amount) internal override {
         require(to != address(this), "NXRA: Token transfer to this contract");
-        super._transfer(from, to, amount);
+        super._beforeTokenTransfer(from, to, amount);
     }
 
     /**
@@ -110,7 +106,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
                 // Overflow not possible: totalValue + amount is at most totalSupply + amount, which is checked above.
                 totalValue += values[i];
             }
-            unchecked { i++ }
+            unchecked { i++; }
         }
 
         require(totalSupply() <= _cap, "NXRA: cap exceeded");
