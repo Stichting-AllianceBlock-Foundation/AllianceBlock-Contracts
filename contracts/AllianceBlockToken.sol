@@ -14,20 +14,20 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
     event BatchMint(address indexed sender, uint256 recipientsLength, uint256 totalValue);
 
     constructor() {
-        init("AllianceBlockToken Implementation", "IMPL", address(this), address(this), 1);
+        init("AllianceBlockToken Implementation V1", "IMPL", address(this), 1);
     }
 
-    function init(string memory name, string memory symbol, address admin, address minter, uint256 cap_) public initializer {
+    function init(string memory name, string memory symbol, address admin, uint256 cap_) public initializer {
         __ERC20_init_unchained(name, symbol);
         __ERC20Snapshot_init_unchained();
         __ERC20Permit_init(name);
         __Pausable_init_unchained();
         __AllianceBlockToken_init_unchained(cap_);
         // We don't use __ERC20PresetMinterPauser_init_unchained to avoid giving permisions to _msgSender
+        require(admin != address(0), "NXRA: Admin can't be zero address");
         _setupRole(DEFAULT_ADMIN_ROLE, admin);
         _setupRole(MINTER_ROLE, admin);
         _setupRole(PAUSER_ROLE, admin);
-        _setupRole(MINTER_ROLE, minter);
     }
 
     function __AllianceBlockToken_init_unchained(uint256 cap_) internal onlyInitializing {

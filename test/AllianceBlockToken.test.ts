@@ -43,7 +43,7 @@ describe("AllianceBlockToken", function () {
   });
 
   it("can't initizalize 2 times", async () => {
-    await expect(token.init(TOKEN_NAME, TOKEN_SYMBOL, deployer.address, deployer.address, MAX_TOTAL_SUPPLY)).to.be.revertedWith(
+    await expect(token.init(TOKEN_NAME, TOKEN_SYMBOL, deployer.address, MAX_TOTAL_SUPPLY)).to.be.revertedWith(
       "Initializable: contract is already initialized",
     );
   });

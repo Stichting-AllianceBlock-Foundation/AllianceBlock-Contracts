@@ -626,11 +626,6 @@
         "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "minter",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
         "name": "cap_",
         "type": "uint256"
