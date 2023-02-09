@@ -13,6 +13,10 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
 
     event BatchMint(address indexed sender, uint256 recipientsLength, uint256 totalValue);
 
+    constructor() {
+        init("AllianceBlockToken Implementation", "IMPL", address(this), address(this), 1);
+    }
+
     function init(string memory name, string memory symbol, address admin, address minter, uint256 cap_) public initializer {
         __ERC20_init_unchained(name, symbol);
         __ERC20Snapshot_init_unchained();

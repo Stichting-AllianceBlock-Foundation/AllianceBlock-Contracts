@@ -1,29 +1,34 @@
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers } from "hardhat";
-import { AllianceBlockToken } from "../typechain-types";
+import { AllianceBlockToken, TestProxy } from "../typechain-types";
 import { MAX_TOTAL_SUPPLY } from "../utils/constants";
 
 const ZERO_ADDRESS = ethers.constants.AddressZero;
 const MAX_UINT256 = ethers.constants.MaxUint256;
 
 describe("ERC20", () => {
-  let initialHolder: any, recipient: any, anotherAccount: any;
+  let initialHolder: any, recipient: any, anotherAccount: any, proxyAdmin: any;
   const name = "My Token";
   const symbol = "MTKN";
   const initialSupply = BigNumber.from(100);
   const maxTotalSupply = MAX_TOTAL_SUPPLY;
-  let Token: any;
+  let Token: any, TestProxy: any;
   let token: AllianceBlockToken;
+  let testProxy: TestProxy;
+  let tokenImplementation: AllianceBlockToken;
 
   before(async () => {
-    [initialHolder, recipient, anotherAccount] = await ethers.getSigners();
+    [initialHolder, recipient, anotherAccount, proxyAdmin] = await ethers.getSigners();
     Token = await ethers.getContractFactory("AllianceBlockToken");
+    TestProxy = await ethers.getContractFactory("TestProxy");
+    tokenImplementation = await Token.deploy();
   });
 
   beforeEach(async () => {
-    token = await Token.deploy();
-    await token.init(name, symbol, initialHolder.address, initialHolder.address, maxTotalSupply);
+    const populatedTx = await tokenImplementation.populateTransaction.init(name, symbol, initialHolder.address, initialHolder.address, maxTotalSupply);
+    testProxy = await TestProxy.deploy(tokenImplementation.address, proxyAdmin.address, populatedTx.data);
+    token = await ethers.getContractAt("AllianceBlockToken", testProxy.address) as AllianceBlockToken;
     await token.mint(initialHolder.address, initialSupply);
   });
 
