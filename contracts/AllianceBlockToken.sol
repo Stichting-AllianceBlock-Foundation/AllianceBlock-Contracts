@@ -25,7 +25,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
         _setupRole(PAUSER_ROLE, admin);
         _setupRole(MINTER_ROLE, minter);
     }
-    
+
     function __AllianceBlockToken_init_unchained(uint256 cap_) internal onlyInitializing {
         require(cap_ > 0, "NXRA: cap is 0");
         _cap = cap_;
@@ -105,23 +105,24 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
 
         uint256 totalValue = 0;
         for (uint256 i = 0; i < recipientsLength; i++) {
-            _mint(recipients[i], values[i]);
+            super._mint(recipients[i], values[i]);
             unchecked {
                 // Overflow not possible: totalValue + amount is at most totalSupply + amount, which is checked above.
                 totalValue += values[i];
             }
         }
 
+        require(totalSupply() <= _cap, "NXRA: cap exceeded");
         emit BatchMint(_msgSender(), recipientsLength, totalValue);
         return true;
     }
-    
+
     /**
      * @dev See {ERC20-_mint}.
      * @dev Checks if cap is reached and calls normal _mint.
      */
     function _mint(address account, uint256 amount) internal override {
-        require(ERC20Upgradeable.totalSupply() + amount <= _cap, "NXRA: cap exceeded");
+        require(totalSupply() + amount <= _cap, "NXRA: cap exceeded");
         super._mint(account, amount);
     }
 
