@@ -97,7 +97,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
     /**
      * @dev Mints multiple values for multiple receivers
      */
-    function batchMint(address[] memory recipients, uint256[] memory values) public returns (bool) {
+    function batchMint(address[] calldata recipients, uint256[] calldata values) public returns (bool) {
         require(hasRole(MINTER_ROLE, _msgSender()), "NXRA: Batch mint invalid role");
 
         uint256 recipientsLength = recipients.length;
