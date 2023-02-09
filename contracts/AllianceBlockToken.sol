@@ -104,12 +104,13 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
         require(recipientsLength == values.length, "NXRA: Batch mint not same legth");
 
         uint256 totalValue = 0;
-        for (uint256 i = 0; i < recipientsLength; i++) {
+        for (uint256 i = 0; i < recipientsLength;) {
             super._mint(recipients[i], values[i]);
             unchecked {
                 // Overflow not possible: totalValue + amount is at most totalSupply + amount, which is checked above.
                 totalValue += values[i];
             }
+            unchecked { i++ }
         }
 
         require(totalSupply() <= _cap, "NXRA: cap exceeded");
