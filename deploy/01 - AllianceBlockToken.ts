@@ -34,7 +34,7 @@ const func: DeployFunction = async (hre: HardhatRuntimeEnvironment) => {
         execute: {
           init: {
             methodName: "init",
-            args: [TOKEN_NAME, TOKEN_SYMBOL, admin, admin, MAX_TOTAL_SUPPLY],
+            args: [TOKEN_NAME, TOKEN_SYMBOL, admin, MAX_TOTAL_SUPPLY],
           },
         },
       },

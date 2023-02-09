@@ -26,7 +26,7 @@ describe("ERC20", () => {
   });
 
   beforeEach(async () => {
-    const populatedTx = await tokenImplementation.populateTransaction.init(name, symbol, initialHolder.address, initialHolder.address, maxTotalSupply);
+    const populatedTx = await tokenImplementation.populateTransaction.init(name, symbol, initialHolder.address, maxTotalSupply);
     testProxy = await TestProxy.deploy(tokenImplementation.address, proxyAdmin.address, populatedTx.data);
     token = await ethers.getContractAt("AllianceBlockToken", testProxy.address) as AllianceBlockToken;
     await token.mint(initialHolder.address, initialSupply);
