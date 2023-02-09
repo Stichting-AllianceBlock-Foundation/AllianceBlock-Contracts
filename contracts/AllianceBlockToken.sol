@@ -55,6 +55,7 @@ contract AllianceBlockToken is ERC20PresetMinterPauserUpgradeable, ERC20Snapshot
      */
     function snapshot() public returns (uint256) {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "NXRA: Snapshot invalid role");
+        require(!paused(), "NXRA: Contract paused");
         return _snapshot();
     }
 

@@ -131,6 +131,11 @@ describe("AllianceBlockToken", function () {
       expect(currentSnapshotId).to.be.eq(previousSnapshotId.add(1));
     });
 
+    it("should fail to create snapshot when paused", async () => {
+      await token.pause();
+      await expect(token.snapshot()).to.be.revertedWith("NXRA: Contract paused");
+    });
+
     it("should obtain snapshot values", async () => {
       const tokens = BigNumber.from(100);
       await token.mint(recipient.address, tokens);
@@ -147,7 +152,7 @@ describe("AllianceBlockToken", function () {
       expect(snapshotTotalSupply).to.be.eq(tokens);
     });
 
-    it("should create snapshot when paused", async () => {
+    it("paused should create a snapshot", async () => {
       const tokens = 100;
       const previousSnapshotId = await token.getCurrentSnapshotId();
       await token.mint(recipient.address, tokens);
