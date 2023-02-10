@@ -1,4 +1,25 @@
-node_modules
 build
 .etherlime-store
+
+node_modules
+.env
+.envrc
+.npmrc
 coverage
+coverage.json
+typechain
+typechain-types
+deployments/localhost/
+yarn-error.log
+
+#Hardhat files
+cache
+artifacts
+
+abi/
+package-lock.json
+yarn.lock
+
+.DS_Store
+.vscode
+hardhat-dependency-compiler
