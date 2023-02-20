@@ -172,6 +172,10 @@ describe('Vesting', function () {
 
       await vestingContract.connect(another1Account).claim();
     }
+
+    const userBalanceEnd = await vestingToken.balanceOf(another1Account.address);
+
+    expect(userBalanceEnd).to.equal(ethers.utils.parseEther(String(tokenAmount)));
   });
 
   it('[Should sucessfully call the claim function]:', async () => {
