@@ -1,4 +1,3 @@
 node_modules
-build
-.etherlime-store
-coverage
+artifacts
+typechain-types
