@@ -4,11 +4,10 @@ pragma solidity 0.8.9;
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import './PercentageCalculator.sol';
-import 'hardhat/console.sol';
 
 contract Vesting is Ownable {
     uint256 public startDate;
-    uint256 internal constant periodLength = 30 days;
+    uint256 internal constant periodLength = 30 days; // 2592000 seconds
     uint256[35] public cumulativeAmountsToVest;
     uint256 public totalPercentages;
     IERC20 internal token;
@@ -120,16 +119,15 @@ contract Vesting is Ownable {
 
     function calculateAmounts() internal view returns (uint256 _owedAmount, uint256 _calculatedAmount) {
         uint256 period = (block.timestamp - startDate) / (periodLength);
-        console.log('0 period is: ', period, cumulativeAmountsToVest[period]);
         if (period >= cumulativeAmountsToVest.length) {
             period = cumulativeAmountsToVest.length - 1;
         }
-        console.log('1 period is: ', period, cumulativeAmountsToVest[period]);
 
         uint256 calculatedAmount = PercentageCalculator.div(
             cumulativeAmountsToVest[period],
             recipients[msg.sender].withdrawPercentage
         );
+
         uint256 owedAmount = calculatedAmount - recipients[msg.sender].withdrawnAmount;
 
         return (owedAmount, calculatedAmount);

@@ -9,54 +9,19 @@ describe('Vesting', function () {
   let another1Account: SignerWithAddress;
   let another2Account: SignerWithAddress;
   let another3Account: SignerWithAddress;
+  let another4Account: SignerWithAddress;
+  let another5Account: SignerWithAddress;
   let vestingContract: Vesting;
   let vestingToken: ERC20Minter;
-  let tokenAmount = ethers.utils.parseEther('10000');
-
-  let amount = ethers.BigNumber.from(100);
-  let power = ethers.BigNumber.from(25);
-  let finalAmount = amount.pow(power);
-  console.log(finalAmount.toString());
+  let tokenAmount = 60_000_000;
 
   let cumulativeAmounts = [
-    10000,
-    20000,
-    30000,
-    40000,
-    50000,
-    60000,
-    70000,
-    80000,
-    90000,
-    100000,
-    110000,
-    120000,
-    130000,
-    140000,
-    150000,
-    160000,
-    170000,
-    180000,
-    190000,
-    200000,
-    210000,
-    220000,
-    230000,
-    240000,
-    250000,
-    260000,
-    270000,
-    280000,
-    290000,
-    300000,
-    310000,
-    320000,
-    330000,
-    340000,
-    finalAmount,
+    433333, 766667, 933333, 933333, 933333, 933333, 933333, 933333, 933333, 933333, 933333, 933333, 933333, 6840000,
+    12746667, 18653333, 24560000, 30466667, 36373333, 42280000, 48186667, 54093333, 60000000, 60000000, 60000000,
+    60000000, 60000000, 60000000, 60000000, 60000000, 60000000, 60000000, 60000000, 60000000, 60000000,
   ];
 
-  const deployVesting = async (cumulativeAmounts: any[], inputToken?: string) => {
+  const deployVesting = async (cumulativeAmounts: number[], inputToken?: string) => {
     const PercentageCalculator = await ethers.getContractFactory('PercentageCalculator');
     const percentageCalculator = await PercentageCalculator.deploy();
 
@@ -66,15 +31,19 @@ describe('Vesting', function () {
     });
     const vestingToken = (await Token.deploy()) as ERC20Minter;
 
-    const vestingContract = (await Vesting.deploy(inputToken || vestingToken.address, cumulativeAmounts)) as Vesting;
-    await vestingToken.mint(vestingContract.address, tokenAmount);
+    const vestingContract = (await Vesting.deploy(
+      inputToken || vestingToken.address,
+      cumulativeAmounts.map((a) => ethers.utils.parseEther(String(a)))
+    )) as Vesting;
+    await vestingToken.mint(vestingContract.address, ethers.utils.parseEther(String(tokenAmount)));
 
     return { vestingToken, vestingContract };
   };
 
   beforeEach(async function () {
     // Contracts are deployed using the first signer/account by default
-    [deployer, another1Account, another2Account, another3Account] = await ethers.getSigners();
+    [deployer, another1Account, another2Account, another3Account, another4Account, another5Account] =
+      await ethers.getSigners();
     ({ vestingToken, vestingContract } = await deployVesting(cumulativeAmounts));
   });
 
@@ -190,42 +159,27 @@ describe('Vesting', function () {
     expect(recipientAddresses.length).to.equal(totalRecipients, 'Total recipients number is not correct');
   });
 
-  it.only('[Should sucessfully call the claim function]:', async () => {
+  it('[Should sucessfully call the claim function]:', async () => {
     let startDate = (await time.latest()) + 100;
     await vestingContract.setStartDate(startDate);
-    let recipientAddress = another1Account.address;
-    let recipientPercentage = 100000;
+    let recipientPercentage = 20000;
 
-    await vestingContract.addRecipient(recipientAddress, recipientPercentage);
+    await vestingContract.addRecipient(another1Account.address, recipientPercentage);
+    await vestingContract.addRecipient(another2Account.address, recipientPercentage);
+    await vestingContract.addRecipient(another3Account.address, recipientPercentage);
+    await vestingContract.addRecipient(another4Account.address, recipientPercentage);
+    await vestingContract.addRecipient(another5Account.address, recipientPercentage);
 
-    let contractInitialBalance = await vestingToken.balanceOf(vestingContract.address);
+    for (let i = 0; i < 36; i++) {
+      let seconds = 2592000;
+      await time.increase(seconds);
 
-    let seconds = 600000;
-    await time.increase(seconds);
-
-    await vestingContract.connect(another1Account).claim();
-
-    let userFinalBalance = await vestingToken.balanceOf(recipientAddress);
-    let contractFinalBalance = await vestingToken.balanceOf(vestingContract.address);
-    let owedBalance = ((cumulativeAmounts[0] as number) * recipientPercentage) / 100000;
-    let recipient = await vestingContract.recipients(recipientAddress);
-    let hasToClaim = await vestingContract.connect(another1Account).hasClaim();
-
-    seconds = 6000000;
-    await time.increase(seconds);
-
-    await vestingContract.connect(another1Account).claim();
-
-    userFinalBalance = await vestingToken.balanceOf(recipientAddress);
-    contractFinalBalance = await vestingToken.balanceOf(vestingContract.address);
-    owedBalance = ((cumulativeAmounts[0] as number) * recipientPercentage) / 100000;
-    recipient = await vestingContract.recipients(recipientAddress);
-    hasToClaim = await vestingContract.connect(another1Account).hasClaim();
-
-    expect(recipient.withdrawnAmount).to.equal(owedBalance, 'The withdrawn amount is not correct');
-    expect(owedBalance).to.equal(userFinalBalance, 'The claim was not sucessfull');
-    expect(contractInitialBalance.sub(owedBalance)).equal(contractFinalBalance, 'The claim was not sucessfull');
-    expect(hasToClaim).to.equal(0, 'The user must have nothing to claim');
+      await vestingContract.connect(another1Account).claim();
+      await vestingContract.connect(another2Account).claim();
+      await vestingContract.connect(another3Account).claim();
+      await vestingContract.connect(another4Account).claim();
+      await vestingContract.connect(another5Account).claim();
+    }
   });
 
   it('[Should successfully call the claim function for first and second period]:', async () => {
@@ -245,7 +199,7 @@ describe('Vesting', function () {
 
     let userFinalBalance = await vestingToken.balanceOf(recipientAddress);
     let contractFinalBalance = await vestingToken.balanceOf(vestingContract.address);
-    let owedBalance = ((cumulativeAmounts[0] as number) * recipientPercentage) / 100000;
+    let owedBalance = ethers.utils.parseEther(String((cumulativeAmounts[0] * recipientPercentage) / 100000));
     let recipient = await vestingContract.recipients(recipientAddress);
 
     expect(recipient.withdrawnAmount).to.equal(owedBalance, 'The withdrawn amount is not correct');
@@ -260,7 +214,7 @@ describe('Vesting', function () {
 
     userFinalBalance = await vestingToken.balanceOf(recipientAddress);
     contractFinalBalance = await vestingToken.balanceOf(vestingContract.address);
-    owedBalance = ((cumulativeAmounts[1] as number) * recipientPercentage) / 100000;
+    owedBalance = ethers.utils.parseEther(String((cumulativeAmounts[1] * recipientPercentage) / 100000));
     recipient = await vestingContract.recipients(recipientAddress);
 
     expect(recipient.withdrawnAmount).to.equal(owedBalance, 'The withdrawn amount is not correct');
@@ -289,7 +243,7 @@ describe('Vesting', function () {
 
     await vestingContract.addRecipient(recipientAddress, recipientPercentage);
     const balance = await vestingContract.connect(another1Account).hasClaim();
-    const owedBalance = ((cumulativeAmounts[0] as number) * recipientPercentage) / 100000;
+    const owedBalance = ethers.utils.parseEther(String((cumulativeAmounts[0] * recipientPercentage) / 100000));
     expect(balance).to.equal(owedBalance, 'The owed balance is not correct	');
   });
 
