@@ -159,6 +159,21 @@ describe('Vesting', function () {
     expect(recipientAddresses.length).to.equal(totalRecipients, 'Total recipients number is not correct');
   });
 
+  it('[Should sucessfully call the claim function if the percentage is 100%]:', async () => {
+    let startDate = (await time.latest()) + 100;
+    await vestingContract.setStartDate(startDate);
+    let recipientPercentage = 100000;
+
+    await vestingContract.addRecipient(another1Account.address, recipientPercentage);
+
+    for (let i = 0; i < 36; i++) {
+      let seconds = 2592000;
+      await time.increase(seconds);
+
+      await vestingContract.connect(another1Account).claim();
+    }
+  });
+
   it('[Should sucessfully call the claim function]:', async () => {
     let startDate = (await time.latest()) + 100;
     await vestingContract.setStartDate(startDate);
